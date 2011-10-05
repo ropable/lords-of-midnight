@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 """
 State Machine Demo
 
@@ -23,6 +22,7 @@ __version__ = '0.0'
 __license__ = 'Public Domain'
 
 import os
+import json
 os.environ["SDL_VIDEO_CENTERED"] = "1" ## Centre the graphics window.
 import pygame
 from pygame.locals import * ## Event handling constants.
@@ -34,7 +34,7 @@ FONT_PATH = ASSET_PATH + os.sep + 'font'
 FONT_BENG = FONT_PATH + os.sep + 'benguiat_book_bt.ttf'
 IMG_PATH = ASSET_PATH + os.sep + 'img'
 SCREEN_SIZE = (1024, 768)
-STARTING_SCREEN = "TitleScreen"
+STARTING_SCREEN = "title_screen"
 # Define some RGB colours as tuples
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -45,14 +45,33 @@ YELLOW = (255, 255, 0)
 PURPLE = (255, 0, 255)
 LT_BLUE = (0, 255, 255)
 
+HEADING_OFFSET = {
+    'north':(-1,0),
+    'northeast':(-1,1),
+    'east':(0,1),
+    'southeast':(1,1),
+    'south':(1,0),
+    'southwest':(1,-1),
+    'west':(0,-1)}
+MAP_JSON = json.loads(open('data/map.json','r').readline())
+
 class Actor:
     def __init__(self, *args, **kwargs):
-        self.name = kwargs.get('name')
-        self.location = kwargs.get('location')
-        self.energy = kwargs.get('energy') or None
+        self.name = kwargs.get('name') or 'Lord'
+        self.location = kwargs.get('location') or (0,0) # A two-tuple coordinate (NOT x, y)
+        self.energy = kwargs.get('energy') or 127 # Energy ranges between 0 and 127
         self.alive = kwargs.get('alive') or True
         self.heading = kwargs.get('heading') or 'north'
+        self.clock = kwargs.get('clock') or 5 # 5AM is dawn
+        self.weapon = kwargs.get('weapon') or None
     
+    def location_desc(self):
+        location_desc = 'He stands at {0}, looking {1} to {2}.'
+        map_grid = MAP_JSON[self.location[0]][self.location[1]]
+        offset = HEADING_OFFSET.get(self.heading)
+        facing = MAP_JSON[self.location[0]-offset[0]][self.location[1]-offset[1]].get('name')
+        return location_desc.format(map_grid.get('name'), self.heading, facing)
+        
 class GameData:
     def __init__(self, *args, **kwargs):
         self.actor = kwargs.get('actor')
@@ -66,15 +85,16 @@ class Game:
         self.font = pygame.font.Font(FONT_BENG, 16)
         self.clock = pygame.time.Clock() ## For FPS management.
         # Define actors
-        self.luxor = Actor(name='Luxor the Moonprince', location=(0,1))
-        self.morkin = Actor(name='Morkin', location=(0,1))
-        self.corleth = Actor(name='Corleth the Fey', location=(0,1))
-        self.rorthron = Actor(name='Rorthron', location=(0,1))
+        self.luxor = Actor(name='Luxor the Moonprince', location=(41,13))
+        self.morkin = Actor(name='Morkin', location=(41,13))
+        self.corleth = Actor(name='Corleth the Fey', location=(41,13))
+        self.rorthron = Actor(name='Rorthron', location=(41,13))
         # Define starting game data
         self.game_data = GameData(actor=self.luxor)
         
-    def Go(self):
-        """This is the main loop of the game.
+    def run(self):
+        '''
+        This is the main game loop.
 
         Go between various screens until the game is over.
         There's a stack of game states in self.game_state, which can have
@@ -84,10 +104,11 @@ class Game:
 
         The exact way this determines the function names assumes that they're
         functions of this class, named exactly as the strings appended to
-        the list. E.g. "TitleScreen" leads this function to look
-        for a function called TitleScreen. 
+        the list. E.g. "title_screen" leads this function to look
+        for a function called title_screen. 
         If at any point no appropriate function is found, or if nothing is 
-        left on the stack, the game ends."""
+        left on the stack, the game ends.
+        '''
         while True:
             if not self.game_state:
                 break # Game over!
@@ -102,14 +123,14 @@ class Game:
                 break # Game over!
         print "Game over. Thanks for playing!"
 
-    def Notify(self, message):
+    def notify(self, message):
         """Get a message from the interface or game entities.
         These messages are handled during one of the screen loops.
         Use a dictionary format with a "headline" key, eg:
         {"headline":"Got Object","object":"Coconut"} """
         self.messages.append(message)
     
-    def TitleScreen(self):
+    def title_screen(self):
         '''
         The game title screen.
         '''
@@ -127,12 +148,12 @@ class Game:
                 elif event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
                         self.done = True
-                        self.game_state.append("GameScreen")
+                        self.game_state.append('game_screen')
                     # Some sample reaction to events.
                     elif event.key == K_s:
                         # This screen will end and go to another screen.
                         self.done = True
-                        self.game_state.append("StatusScreen")
+                        self.game_state.append("status_screen")
 
             ## Draw a sample set of stuff on the screen.
             self.screen.fill(BLUE)
@@ -147,7 +168,7 @@ class Game:
             pygame.display.update()
             self.clock.tick(20)
 
-    def GameScreen(self):
+    def game_screen(self):
         '''
         Main gameplay screen.
         '''
@@ -160,7 +181,7 @@ class Game:
                 elif event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
                         self.done = True
-                        self.game_state.append("ExitScreen")
+                        self.game_state.append("exit_screen")
                     elif event.key == K_c:
                         # Switch actors to Luxor
                         self.game_data.actor = self.luxor
@@ -180,10 +201,12 @@ class Game:
             self.screen.blit(land, (0,468))
             # Display the name of the current actor
             actor_name = self.font.render(self.game_data.actor.name, True, YELLOW)
-            self.screen.blit(actor_name, (10,10))
+            self.screen.blit(actor_name, (6,6))
+            location_desc = self.font.render(self.game_data.actor.location_desc(), True, LT_BLUE)
+            self.screen.blit(location_desc, (6,20))
             pygame.display.update()
             
-    def StatusScreen(self):
+    def status_screen(self):
         """A sample screen."""
 
         self.done = False
@@ -208,12 +231,12 @@ class Game:
                     elif event.key == K_t:
                         ## This screen will end and go to another screen.
                         self.done = True
-                        self.game_state.append("TitleScreen")
+                        self.game_state.append("title_screen")
                     elif event.key == K_p:
                         ## Return to _this_ screen after the pop-up.
                         self.done = True
-                        self.game_state.append("StatusScreen")
-                        self.game_state.append("PopUpScreen")
+                        self.game_state.append("status_screen")
+                        self.game_state.append("popup_screen")
 
             ## Draw a sample set of stuff on the screen.
             self.screen.fill((0,0,180,255))
@@ -226,7 +249,7 @@ class Game:
             pygame.display.update()
             self.clock.tick(20)
 
-    def PopUpScreen(self):
+    def popup_screen(self):
         """A sample screen, resembling a pop-up dialog or something."""
 
         self.done = False
@@ -257,7 +280,7 @@ class Game:
             pygame.display.update()
             self.clock.tick(20)
 
-## Run the demo.
+# Run the main game loop.
 pygame.init()
-g = Game()
-g.Go()
+game = Game()
+game.run()
