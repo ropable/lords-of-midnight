@@ -42,7 +42,7 @@ MAP_JSON = json.loads(open('data/map.json','r').readline())
 
 class Heading:
     '''
-    This is a class for actor heading (facing direction).
+    This is a class for actor headings (facing direction).
     '''
     def __init__(self, name, bearing, offset):
         self.name = name
@@ -70,6 +70,7 @@ SOUTH = Heading('south', 180, (1,0))
 SOUTHWEST = Heading('southwest', 225, (1,-1)) 
 WEST = Heading('west', 270, (0,-1))
 NORTHWEST = Heading('northwest', 315, (-1,-1))
+# Dictionary lookup for Heading classes
 HEADINGS = {'0':NORTH,
     '45':NORTHEAST,
     '90':EAST,
@@ -79,27 +80,104 @@ HEADINGS = {'0':NORTH,
     '270':WEST,
     '315':NORTHWEST}
 
+class Terrain:
+    def __init__(self, terrain_type, move_cost=None, energy_cost=None, image=None):
+        self.terrain_type = terrain_type
+        self.move_cost = move_cost or 1
+        self.energy_cost = energy_cost or 8
+        self.image = image
+        
+    @property
+    def name(self):
+        return self.name.replace('_', ' ')
+
+# Define terrain types
+PLAINS = Terrain('plains')
+MOUNTAINS = Terrain('mountains', 6, 64)
+CITADEL = Terrain('citadel')
+FOREST = Terrain('forest', 2, 12)
+TOWER = Terrain('tower')
+HENGE = Terrain('henge')
+VILLAGE = Terrain('village')
+DOWNS = Terrain('downs', 2, 16)
+KEEP = Terrain('keep')
+SNOWHALL = Terrain('snowhall')
+LAKE = Terrain('lake')
+WASTES = Terrain('frozen_wastes', 999)
+RUIN = Terrain('ruin')
+LITH = Terrain('lith')
+CAVERN = Terrain('cavern')
+TERRAIN = {'plains':PLAINS,
+    'mountains':MOUNTAINS,
+    'citadel':CITADEL,
+    'forest':FOREST,
+    'tower':TOWER,
+    'henge':HENGE,
+    'village':VILLAGE,
+    'downs':DOWNS,
+    'keep':KEEP,
+    'snowhall':SNOWHALL,
+    'lake':LAKE,
+    'frozen_wastes':WASTES,
+    'ruin':RUIN,
+    'lith':LITH,
+    'cavern':CAVERN}
+
 class Actor:
     def __init__(self, *args, **kwargs):
         self.name = kwargs.get('name') or 'Lord'
-        self.location = kwargs.get('location') or (0,0) # A two-tuple coordinate (NOT x, y)
-        self.energy = kwargs.get('energy') or 127 # Energy ranges between 0 and 127
+        self.location = kwargs.get('location') or (0,0) # A two-tuple coordinate (NOT x,y coords).
+        self.energy = kwargs.get('energy') or 127 # Energy ranges between 0 and 127.
         self.health = kwargs.get('health') or 127 # Health level for a Lord ranges between 0 (dead) and 127 (full health).
         self.heading = kwargs.get('heading') or NORTH
-        self.clock = kwargs.get('clock') or 5 # 5AM is dawn
+        self.clock = kwargs.get('clock') or 6 # 6 AM is dawn, 6PM is twilight
         self.weapon = kwargs.get('weapon') or None
     
     def location_desc(self):
         location_desc = 'He stands at {0}, looking {1} to {2}.'
         map_grid = MAP_JSON[self.location[0]][self.location[1]]
         offset = self.heading.offset
-        facing = MAP_JSON[self.location[0]-offset[0]][self.location[1]-offset[1]].get('name')
+        facing = MAP_JSON[self.location[0] + offset[0]][self.location[1] + offset[1]].get('name')
         return location_desc.format(map_grid.get('name'), self.heading.name, facing)
-        
+    
+    def move(self):
+        print('Started at {0}'.format(self.location))
+        offset = self.heading.offset
+        dest_type = MAP_JSON[self.location[0] + offset[0]][self.location[1] + offset[1]].get('terrain_type')
+        dest_terrain = TERRAIN.get(dest_type)
+        # Enough time left in the day to move?
+        if self.clock + dest_terrain.move_cost <= 18:
+            # Enough energy left to move?
+            if self.energy >= dest_terrain.energy_cost:
+                # Set new location
+                self.location = (self.location[0] + offset[0], self.location[1] + offset[1])
+                self.clock += dest_terrain.move_cost
+                # Subtract energy cost
+                self.energy -= dest_terrain.energy_cost
+                print('Moved to {0}'.format(self.location))
+            else:
+                print('Not enough energy left.')
+        else:
+            print('Not enough hours left.')
+    
 class GameData:
+    '''
+    This class stores everything about a game in progress. 
+    '''
+    actors = [] # A list of all player-controllable actors
+    
     def __init__(self, *args, **kwargs):
-        self.actor = kwargs.get('actor')
-
+        # Define actors
+        self.luxor = Actor(name='Luxor the Moonprince', location=(41,13))
+        self.actors.append(self.luxor)
+        self.morkin = Actor(name='Morkin', location=(41,13))
+        self.actors.append(self.morkin)
+        self.corleth = Actor(name='Corleth the Fey', location=(41,13))
+        self.actors.append(self.corleth)
+        self.rorthron = Actor(name='Rorthron', location=(41,13))
+        self.actors.append(self.rorthron)
+        self.actor = kwargs.get('actor') or self.luxor
+        
 class Game:
     def __init__(self, **options):
         self.screen = options.get("screen", pygame.display.set_mode(SCREEN_SIZE, 0, 32))
@@ -110,13 +188,8 @@ class Game:
         # Set that current Pygame font
         drawing.fonts.set_font(size=16, name=FONT_BENG)
         self.clock = pygame.time.Clock() ## For FPS management.
-        # Define actors
-        self.luxor = Actor(name='Luxor the Moonprince', location=(41,13))
-        self.morkin = Actor(name='Morkin', location=(41,13))
-        self.corleth = Actor(name='Corleth the Fey', location=(41,13))
-        self.rorthron = Actor(name='Rorthron', location=(41,13))
         # Define starting game data
-        self.game_data = GameData(actor=self.luxor)
+        self.gamedata = GameData()
         
     def run(self):
         '''
@@ -205,57 +278,64 @@ class Game:
                         self.game_state.append("exit_screen")
                     elif event.key == K_c:
                         # Switch actors to Luxor
-                        self.game_data.actor = self.luxor
+                        self.gamedata.actor = self.gamedata.luxor
                     elif event.key == K_v:
                         # Switch actors to Morkin
-                        self.game_data.actor = self.morkin
+                        self.gamedata.actor = self.gamedata.morkin
                     elif event.key == K_b:
                         # Switch actors to Corleth
-                        self.game_data.actor = self.corleth
+                        self.gamedata.actor = self.gamedata.corleth
                     elif event.key == K_n:
                         # Switch actors to Morkin
-                        self.game_data.actor = self.rorthron
+                        self.gamedata.actor = self.gamedata.rorthron
                     elif event.key == K_1:
                         # Change actor heading to north
-                        self.game_data.actor.heading = NORTH
+                        self.gamedata.actor.heading = NORTH
                     elif event.key == K_2:
                         # Change actor heading to northeast
-                        self.game_data.actor.heading = NORTHEAST
+                        self.gamedata.actor.heading = NORTHEAST
                     elif event.key == K_3:
                         # Change actor heading to east
-                        self.game_data.actor.heading = EAST
+                        self.gamedata.actor.heading = EAST
                     elif event.key == K_4:
                         # Change actor heading to southeast
-                        self.game_data.actor.heading = SOUTHEAST
+                        self.gamedata.actor.heading = SOUTHEAST
                     elif event.key == K_5:
                         # Change actor heading to south
-                        self.game_data.actor.heading = SOUTH
+                        self.gamedata.actor.heading = SOUTH
                     elif event.key == K_6:
                         # Change actor heading to southwest
-                        self.game_data.actor.heading = SOUTHWEST
+                        self.gamedata.actor.heading = SOUTHWEST
                     elif event.key == K_7:
                         # Change actor heading to west
-                        self.game_data.actor.heading = WEST
+                        self.gamedata.actor.heading = WEST
                     elif event.key == K_8:
                         # Change actor heading to northwest
-                        self.game_data.actor.heading = NORTHWEST
+                        self.gamedata.actor.heading = NORTHWEST
                     elif event.key == K_MINUS:
                         # Rotate heading CCW
-                        new_bearing = self.game_data.actor.heading.rotate_ccw()
-                        self.game_data.actor.heading = HEADINGS.get(new_bearing)
+                        new_bearing = self.gamedata.actor.heading.rotate_ccw()
+                        self.gamedata.actor.heading = HEADINGS.get(new_bearing)
                     elif event.key == K_EQUALS:
                         # Rotate heading CW
-                        new_bearing = self.game_data.actor.heading.rotate_cw()
-                        self.game_data.actor.heading = HEADINGS.get(new_bearing)
+                        new_bearing = self.gamedata.actor.heading.rotate_cw()
+                        self.gamedata.actor.heading = HEADINGS.get(new_bearing)
+                    elif event.key == K_q:
+                        # Move character forwards (if possible)
+                        print(self.gamedata.actor.clock)
+                        self.gamedata.actor.move()
+                    elif event.key == K_r:
+                        # Enter think screen
+                        pass
                         
             self.screen.fill(colours.blue)
             land = pygame.surface.Surface((1024,300))
             land.fill(colours.white)
             self.screen.blit(land, (0,468))
             # Display the name of the current actor
-            actor_name = self.font.render(self.game_data.actor.name, True, colours.yellow)
+            actor_name = self.font.render(self.gamedata.actor.name, True, colours.yellow)
             self.screen.blit(actor_name, (6,6))
-            location_desc = self.font.render(self.game_data.actor.location_desc(), True, colours.aqua)
+            location_desc = self.font.render(self.gamedata.actor.location_desc(), True, colours.aqua)
             self.screen.blit(location_desc, (6,20))
             pygame.display.update()
             
