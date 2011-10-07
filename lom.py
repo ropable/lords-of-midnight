@@ -26,6 +26,7 @@ import json
 os.environ["SDL_VIDEO_CENTERED"] = "1" ## Centre the graphics window.
 import pygame
 from pygame.locals import * ## Event handling constants.
+from easypg import colours, drawing
 from sys import path
 
 PROJECT_PATH = path[0]
@@ -35,42 +36,65 @@ FONT_BENG = FONT_PATH + os.sep + 'benguiat_book_bt.ttf'
 IMG_PATH = ASSET_PATH + os.sep + 'img'
 SCREEN_SIZE = (1024, 768)
 STARTING_SCREEN = "title_screen"
-# Define some RGB colours as tuples
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-YELLOW = (255, 255, 0)
-PURPLE = (255, 0, 255)
-LT_BLUE = (0, 255, 255)
 
-HEADING_OFFSET = {
-    'north':(-1,0),
-    'northeast':(-1,1),
-    'east':(0,1),
-    'southeast':(1,1),
-    'south':(1,0),
-    'southwest':(1,-1),
-    'west':(0,-1)}
+# Load the map from external file
 MAP_JSON = json.loads(open('data/map.json','r').readline())
+
+class Heading:
+    '''
+    This is a class for actor heading (facing direction).
+    '''
+    def __init__(self, name, bearing, offset):
+        self.name = name
+        self.bearing = bearing
+        self.offset = offset
+    
+    def rotate_cw(self):
+        if (self.bearing + 45) == 360:
+            return '0'
+        else:
+            return str(self.bearing + 45)
+
+    def rotate_ccw(self):
+        if (self.bearing - 45) < 0:
+            return '315'
+        else:
+            return str(self.bearing - 45)
+
+# Define headings
+NORTH = Heading('north', 0, (-1,0))
+NORTHEAST = Heading('northeast', 45, (-1,1))
+EAST = Heading('east', 90, (0,1))
+SOUTHEAST = Heading('southeast', 135, (1,1))
+SOUTH = Heading('south', 180, (1,0))
+SOUTHWEST = Heading('southwest', 225, (1,-1)) 
+WEST = Heading('west', 270, (0,-1))
+NORTHWEST = Heading('northwest', 315, (-1,-1))
+HEADINGS = {'0':NORTH,
+    '45':NORTHEAST,
+    '90':EAST,
+    '135':SOUTHEAST,
+    '180':SOUTH,
+    '225':SOUTHWEST,
+    '270':WEST,
+    '315':NORTHWEST}
 
 class Actor:
     def __init__(self, *args, **kwargs):
         self.name = kwargs.get('name') or 'Lord'
         self.location = kwargs.get('location') or (0,0) # A two-tuple coordinate (NOT x, y)
         self.energy = kwargs.get('energy') or 127 # Energy ranges between 0 and 127
-        self.alive = kwargs.get('alive') or True
-        self.heading = kwargs.get('heading') or 'north'
+        self.health = kwargs.get('health') or 127 # Health level for a Lord ranges between 0 (dead) and 127 (full health).
+        self.heading = kwargs.get('heading') or NORTH
         self.clock = kwargs.get('clock') or 5 # 5AM is dawn
         self.weapon = kwargs.get('weapon') or None
     
     def location_desc(self):
         location_desc = 'He stands at {0}, looking {1} to {2}.'
         map_grid = MAP_JSON[self.location[0]][self.location[1]]
-        offset = HEADING_OFFSET.get(self.heading)
+        offset = self.heading.offset
         facing = MAP_JSON[self.location[0]-offset[0]][self.location[1]-offset[1]].get('name')
-        return location_desc.format(map_grid.get('name'), self.heading, facing)
+        return location_desc.format(map_grid.get('name'), self.heading.name, facing)
         
 class GameData:
     def __init__(self, *args, **kwargs):
@@ -83,6 +107,8 @@ class Game:
         self.done = False # Done with current screen loop?
         self.messages = [] # Checked during event loops.
         self.font = pygame.font.Font(FONT_BENG, 16)
+        # Set that current Pygame font
+        drawing.fonts.set_font(size=16, name=FONT_BENG)
         self.clock = pygame.time.Clock() ## For FPS management.
         # Define actors
         self.luxor = Actor(name='Luxor the Moonprince', location=(41,13))
@@ -155,16 +181,11 @@ class Game:
                         self.done = True
                         self.game_state.append("status_screen")
 
-            ## Draw a sample set of stuff on the screen.
-            self.screen.fill(BLUE)
-            text_render = self.font.render('Now explore the epic world of', True, GREEN)
-            self.screen.blit(text_render, (10,10))
-            text_render = self.font.render('THE LORDS OF MIDNIGHT', True, YELLOW)
-            self.screen.blit(text_render, (10,24))
-            text_render = self.font.render('       by', True, PURPLE)
-            self.screen.blit(text_render, (10,36))
-            text_render = self.font.render(' Mike Singleton', True, LT_BLUE)
-            self.screen.blit(text_render, (10,48))
+            self.screen.fill(colours.blue)
+            drawing.draw_text(self.screen, 'Now explore the epic world of', colours.green, (10,10))
+            drawing.draw_text(self.screen, 'THE LORDS OF MIDNIGHT', colours.yellow, (10,24))
+            drawing.draw_text(self.screen, '       by', colours.purple, (10,38))
+            drawing.draw_text(self.screen, ' Mike Singleton', colours.aqua, (10,52))
             pygame.display.update()
             self.clock.tick(20)
 
@@ -194,15 +215,47 @@ class Game:
                     elif event.key == K_n:
                         # Switch actors to Morkin
                         self.game_data.actor = self.rorthron
-
-            self.screen.fill(BLUE)
+                    elif event.key == K_1:
+                        # Change actor heading to north
+                        self.game_data.actor.heading = NORTH
+                    elif event.key == K_2:
+                        # Change actor heading to northeast
+                        self.game_data.actor.heading = NORTHEAST
+                    elif event.key == K_3:
+                        # Change actor heading to east
+                        self.game_data.actor.heading = EAST
+                    elif event.key == K_4:
+                        # Change actor heading to southeast
+                        self.game_data.actor.heading = SOUTHEAST
+                    elif event.key == K_5:
+                        # Change actor heading to south
+                        self.game_data.actor.heading = SOUTH
+                    elif event.key == K_6:
+                        # Change actor heading to southwest
+                        self.game_data.actor.heading = SOUTHWEST
+                    elif event.key == K_7:
+                        # Change actor heading to west
+                        self.game_data.actor.heading = WEST
+                    elif event.key == K_8:
+                        # Change actor heading to northwest
+                        self.game_data.actor.heading = NORTHWEST
+                    elif event.key == K_MINUS:
+                        # Rotate heading CCW
+                        new_bearing = self.game_data.actor.heading.rotate_ccw()
+                        self.game_data.actor.heading = HEADINGS.get(new_bearing)
+                    elif event.key == K_EQUALS:
+                        # Rotate heading CW
+                        new_bearing = self.game_data.actor.heading.rotate_cw()
+                        self.game_data.actor.heading = HEADINGS.get(new_bearing)
+                        
+            self.screen.fill(colours.blue)
             land = pygame.surface.Surface((1024,300))
-            land.fill(WHITE)
+            land.fill(colours.white)
             self.screen.blit(land, (0,468))
             # Display the name of the current actor
-            actor_name = self.font.render(self.game_data.actor.name, True, YELLOW)
+            actor_name = self.font.render(self.game_data.actor.name, True, colours.yellow)
             self.screen.blit(actor_name, (6,6))
-            location_desc = self.font.render(self.game_data.actor.location_desc(), True, LT_BLUE)
+            location_desc = self.font.render(self.game_data.actor.location_desc(), True, colours.aqua)
             self.screen.blit(location_desc, (6,20))
             pygame.display.update()
             
