@@ -123,6 +123,9 @@ TERRAIN = {'plains':PLAINS,
     'lith':LITH,
     'cavern':CAVERN}
 
+class Object:
+    pass
+
 class Actor:
     def __init__(self, *args, **kwargs):
         self.name = kwargs.get('name') or 'Lord'
@@ -132,13 +135,20 @@ class Actor:
         self.heading = kwargs.get('heading') or NORTH
         self.clock = kwargs.get('clock') or 6 # 6 AM is dawn, 6PM is twilight
         self.weapon = kwargs.get('weapon') or None
+        self.mounted = kwargs.get('mounted') or False
+        self.heraldry = kwargs.get('heraldry') or None
     
     def location_desc(self):
         location_desc = 'He stands at {0}, looking {1} to {2}.'
-        map_grid = MAP_JSON[self.location[0]][self.location[1]]
+        curent_location = MAP_JSON[self.location[0]][self.location[1]]
         offset = self.heading.offset
-        facing = MAP_JSON[self.location[0] + offset[0]][self.location[1] + offset[1]].get('name')
-        return location_desc.format(map_grid.get('name'), self.heading.name, facing)
+        facing_grid = (self.location[0] + offset[0], self.location[1] + offset[1])
+        facing_location = MAP_JSON[facing_grid[0]][facing_grid[1]]
+        # Still facing plains? Look further ahead.
+        while facing_location.get('terrain_type') == 'plains':
+            facing_grid = (facing_grid[0] + offset[0], facing_grid[1] + offset[1])
+            facing_location = MAP_JSON[facing_grid[0]][facing_grid[1]]
+        return location_desc.format(curent_location.get('name'), self.heading.name, facing_location.get('name'))
     
     def move(self):
         print('Started at {0}'.format(self.location))
@@ -159,7 +169,8 @@ class Actor:
                 print('Not enough energy left.')
         else:
             print('Not enough hours left.')
-    
+
+
 class GameData:
     '''
     This class stores everything about a game in progress. 
@@ -168,13 +179,13 @@ class GameData:
     
     def __init__(self, *args, **kwargs):
         # Define actors
-        self.luxor = Actor(name='Luxor the Moonprince', location=(41,13))
+        self.luxor = Actor(name='Luxor the Moonprince', location=(41,13), mounted=True)
         self.actors.append(self.luxor)
-        self.morkin = Actor(name='Morkin', location=(41,13))
+        self.morkin = Actor(name='Morkin', location=(41,13), mounted=True)
         self.actors.append(self.morkin)
-        self.corleth = Actor(name='Corleth the Fey', location=(41,13))
+        self.corleth = Actor(name='Corleth the Fey', location=(41,13), mounted=True)
         self.actors.append(self.corleth)
-        self.rorthron = Actor(name='Rorthron', location=(41,13))
+        self.rorthron = Actor(name='Rorthron', location=(41,13), mounted=True)
         self.actors.append(self.rorthron)
         self.actor = kwargs.get('actor') or self.luxor
         
