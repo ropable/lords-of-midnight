@@ -110,6 +110,7 @@ class Actor:
         self.mounted = kwargs.get('mounted') or False
         self.heraldry = kwargs.get('heraldry') or None
         self.race = kwargs.get('race') or None
+        self.icefear = kwargs.get('icefear') or 0 
     
     def location_desc(self):
         location_desc = 'He stands at {0}, looking {1} to {2}.'
