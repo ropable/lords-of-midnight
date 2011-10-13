@@ -58,7 +58,7 @@ def getIntersectPoint(p1, p2, p3, p4):
                 y = (m1 * x) + b1           
             else:
                 assert false
-        return (x,y)
+        return (int(x),int(y))
     else:
         return None
     
@@ -89,41 +89,104 @@ class GameScreen(engine.State):
         text.write(screen, font, (6,6), colours.yellow, gamedata.actor.name, 0)
         text.write(screen, font, (6,20), colours.aqua, gamedata.actor.location_desc(), 0)
         
-        vp1 = (SCREENSIZE[0]*0.5, SCREENSIZE[1]*0.6) # 5 pixels above the horizon
-        vp2 = (128, SCREENSIZE[1]*0.605)
-        vp3 = (896, SCREENSIZE[1]*0.605)
+        vp1 = (512, 461) # 5 pixels above the horizon
+        vp2 = (128, 463)
+        vp3 = (896, 463)
         if gamedata.actor.heading in [lom.NORTH, lom.EAST, lom.SOUTH, lom.WEST]:
-            sp1 = [-4608,-3072,-1792,-768,-0,512,1024,1792,2816,4096,5632]
-            sp2 = [-512,-128,128,512,1024,1792,2816,4096]
-            sp3 = [-3072,-1792,-768,-0,512,896,1152,1536]
-            # Draw the 1st set of vanishing points 
-            for i in sp1:
-                pygame.draw.line(screen, colours.black, (i, SCREENSIZE[1]*0.74), vp1, 1)            
-            # Draw the 2nd set
-            for i in sp2:
-                pygame.draw.line(screen, colours.red, (i, SCREENSIZE[1]*0.74), vp2, 1)
-            # Draw the 3rd set
-            for i in sp3:
-                pygame.draw.line(screen, colours.green, (i, SCREENSIZE[1]*0.74), vp3, 1)
+            sp1 = [-4608,-3072,-1792,-768,0,512,1024,1792,2816,4096] # Midpoint: 512
+            sp2 = [-768,-256,128,512,1024,1792,2816,4096,5632] # Midpoint: 128
+            sp3 = [-3072,-1792,-768,0,512,896,1280,1792] #Midpoint: 896
         else:
-            sp1 = [-3456,-2176,-1152,-384,128,512,896,1408,2176,3200,4480]
-            sp2 = [-512,-128,128,640,1408,2432,3712,5248]
-            sp3 = [-4224,-2688,-1408,-384,384,896,1152,1536]            
-            for i in sp1:
-                pygame.draw.line(screen, colours.black, (i, SCREENSIZE[1]*0.74), vp1, 1)            
-            for i in sp2:
-                pygame.draw.line(screen, colours.red, (i, SCREENSIZE[1]*0.74), vp2, 1)
-            for i in sp3:
-                pygame.draw.line(screen, colours.green, (i, SCREENSIZE[1]*0.74), vp3, 1)
-
-        
-        #heights = [468,471,475,480,493,518,568]
-        #for i in heights:
-        #    pygame.draw.line(screen, colours.black, (0,i), (1024,i), 1)
-        #intersect = getIntersectPoint(p1=vanishing_point, p2=(-64,568), p3=(0,518), p4=(1024,518))
-        #print(intersect)
-        #dot = pygame.image.load(os.path.join(lom.IMG_PATH,'dot.png')).convert_alpha()
-        #screen.blit(dot, (intersect[0]-(dot.get_width()/2), intersect[1]-(dot.get_height()/2)))
+            sp1 = [-3456,-2176,-1152,-384,128,512,896,1408,2176,3200,4480] # Midpoint: 512
+            sp2 = [-1152,-384,128,640,1408,2432,3712,5248,7040] # Midpoint: 128
+            sp3 = [-4224,-2688,-1408,-384,384,896,1408,2176] #Midpoint: 896
+        NORTH_DRAWPOINTS = [
+            [
+                getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(2816,568)),
+                getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(4096,568)),
+                getIntersectPoint(p1=vp1, p2=(512, 568), p3=vp2, p4=(5632,568)),
+                getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(-3072,568)),
+                getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(-1792,568)),
+            ],
+            [
+                getIntersectPoint(p1=vp1, p2=(-3072,568), p3=vp2, p4=(512,568)),
+                getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(1024,568)),
+                getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(1792,568)),
+                getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(2816,568)),
+                getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(4096,568)),
+                getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(-1792,568)),
+                getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(-768,568)),
+                getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(0,568)),
+                getIntersectPoint(p1=vp1, p2=(4096,568), p3=vp3, p4=(512,568)),
+            ],
+            [
+                getIntersectPoint(p1=vp1, p2=(-4608,568), p3=vp2, p4=(-256,568)),
+                getIntersectPoint(p1=vp1, p2=(-3072,568), p3=vp2, p4=(128,568)),
+                getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(512,568)),
+                getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(1024,568)),
+                getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(1792,568)),
+                getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(2816,568)),
+                getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(-768,568)),
+                getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(0,568)),
+                getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(512,568)),
+                getIntersectPoint(p1=vp1, p2=(4096,568), p3=vp3, p4=(896,568)),
+                getIntersectPoint(p1=vp1, p2=(5632,568), p3=vp3, p4=(1280,568)),
+            ],
+            [
+                getIntersectPoint(p1=vp1, p2=(-4608,568), p3=vp2, p4=(-768,568)),
+                getIntersectPoint(p1=vp1, p2=(-3072,568), p3=vp2, p4=(-256,568)),
+                getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(128,568)),
+                getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(512,568)),
+                getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(1024,568)),
+                getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(1792,568)),
+                getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(0,568)),
+                getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(512,568)),
+                getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(896,568)),
+                getIntersectPoint(p1=vp1, p2=(4096,568), p3=vp3, p4=(1280,568)),
+                getIntersectPoint(p1=vp1, p2=(5632,568), p3=vp3, p4=(1792,568)),
+            ],
+            [
+                getIntersectPoint(p1=vp1, p2=(-3072,568), p3=vp2, p4=(-768,568)),
+                getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(-256,568)),
+                getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(128,568)),
+                getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(512,568)),
+                getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(1024,568)),
+                getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(512,568)),
+                getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(896,568)),
+                getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(1280,568)),
+                getIntersectPoint(p1=vp1, p2=(4096,568), p3=vp3, p4=(1792,568)),
+            ],
+            [
+                getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(-768,568)),
+                getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(-256,568)),
+                getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(128,568)),
+                getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(512,568)),
+                getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(896,568)),
+                getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(1280,568)),
+                getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(1792,568)),
+            ]
+        ]
+        #print(NORTH_DRAWPOINTS)
+        for i in NORTH_DRAWPOINTS[0]:
+            screen.set_at(i, colours.black)
+        for i in NORTH_DRAWPOINTS[1]:
+            screen.set_at(i, colours.black)
+        for i in NORTH_DRAWPOINTS[2]:
+            screen.set_at(i, colours.black)
+        for i in NORTH_DRAWPOINTS[3]:
+            screen.set_at(i, colours.black)
+        for i in NORTH_DRAWPOINTS[4]:
+            screen.set_at(i, colours.black)
+        for i in NORTH_DRAWPOINTS[5]:
+            screen.set_at(i, colours.black)
+        downs_path = os.path.join(lom.IMG_PATH, 'terrain_downs.png')
+        downs_img = pygame.image.load(downs_path).convert_alpha()
+        downs_img_size = (downs_img.get_size())
+        downs_img_sml = pygame.transform.scale(downs_img, (int(downs_img_size[0]*0.7), int(downs_img_size[1]*0.7)))
+        screen.blit(downs_img_sml, (NORTH_DRAWPOINTS[5][2][0]-(downs_img_sml.get_width()/2), NORTH_DRAWPOINTS[5][2][1]-(downs_img_sml.get_height())))
+        screen.blit(downs_img, (NORTH_DRAWPOINTS[5][3][0]-(downs_img.get_width()/2), NORTH_DRAWPOINTS[5][3][1]-(downs_img.get_height())))
+        screen.blit(downs_img_sml, (NORTH_DRAWPOINTS[5][4][0]-(downs_img_sml.get_width()/2), NORTH_DRAWPOINTS[5][4][1]-(downs_img_sml.get_height())))
+        pygame.draw.line(screen, colours.black, (0, 568), (1024,568), 1)
         pygame.display.update()
         
     def event(self, event):
