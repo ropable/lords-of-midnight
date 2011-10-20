@@ -20,6 +20,7 @@ import lom
 gamedata = lom.GameData()
 pygame.font.init()
 font = pygame.font.Font(lom.FONT_BENG, 16)
+CHEATING = True
     
 class StartScreen(engine.State):
     def paint(self, screen): 
@@ -47,32 +48,8 @@ class GameScreen(engine.State):
         # Display the name of the current actor
         text.write(screen, font, (6,6), colours.yellow, gamedata.actor.name, 0)
         text.write(screen, font, (6,20), colours.aqua, gamedata.actor.location_desc(), 0)
-        # If the Actor is facing one of the cardinal directions, render the panorama for that heading.
-        if gamedata.actor.heading in [lom.NORTH, lom.EAST, lom.SOUTH, lom.WEST]:
-            cardinal = True
-        else:
-            cardinal = False
-        drawpoints = lom.drawpoints(cardinal=cardinal, grids=True, screen=screen)
-        for i in drawpoints[0]:
-            screen.set_at(i, colours.black)
-        for i in drawpoints[1]:
-            screen.set_at(i, colours.black)
-        for i in drawpoints[2]:
-            screen.set_at(i, colours.black)
-        for i in drawpoints[3]:
-            screen.set_at(i, colours.black)
-        for i in drawpoints[4]:
-            screen.set_at(i, colours.black)
-        for i in drawpoints[5]:
-            screen.set_at(i, colours.black)
-        downs_path = os.path.join(lom.IMG_PATH, 'terrain_downs.png')
-        downs_img = pygame.image.load(downs_path).convert_alpha()
-        downs_img_size = (downs_img.get_size())
-        downs_img_sml = pygame.transform.scale(downs_img, (int(downs_img_size[0]*0.7), int(downs_img_size[1]*0.7)))
-        #screen.blit(downs_img_sml, (NORTH_DRAWPOINTS[5][2][0]-(downs_img_sml.get_width()/2), NORTH_DRAWPOINTS[5][2][1]-(downs_img_sml.get_height())))
-        #screen.blit(downs_img, (NORTH_DRAWPOINTS[5][3][0]-(downs_img.get_width()/2), NORTH_DRAWPOINTS[5][3][1]-(downs_img.get_height())))
-        #screen.blit(downs_img_sml, (NORTH_DRAWPOINTS[5][4][0]-(downs_img_sml.get_width()/2), NORTH_DRAWPOINTS[5][4][1]-(downs_img_sml.get_height())))
-        #pygame.draw.line(screen, colours.black, (0, 568), (1024,568), 1)
+        # Render render the panorama for the Actor's heading.
+        gamedata.actor.render_panorama()
         pygame.display.update()
         
     def event(self, event):
@@ -126,7 +103,7 @@ class GameScreen(engine.State):
             elif event.key == K_q:
                 # Move character forwards (if possible)
                 print(gamedata.actor.clock)
-                gamedata.actor.move()
+                gamedata.actor.move(cheating=CHEATING)
             elif event.key == K_r:
                 # Enter think screen
                 pass

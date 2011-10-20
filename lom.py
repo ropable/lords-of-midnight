@@ -19,10 +19,12 @@ class Heading:
     '''
     This is a class for actor headings (facing direction).
     '''
-    def __init__(self, name, bearing, offset):
+    def __init__(self, name, cardinal, bearing, offset, view_offsets):
         self.name = name
+        self.cardinal = cardinal
         self.bearing = bearing
-        self.offset = offset
+        self.offset = offset # Position offset of the square in front.
+        self.view_offsets = view_offsets
     
     def rotate_cw(self):
         if (self.bearing + 45) == 360:
@@ -37,15 +39,91 @@ class Heading:
             return str(self.bearing - 45)
 
 # Define headings
-NORTH = Heading('north', 0, (-1,0))
-NORTHEAST = Heading('northeast', 45, (-1,1))
-EAST = Heading('east', 90, (0,1))
-SOUTHEAST = Heading('southeast', 135, (1,1))
-SOUTH = Heading('south', 180, (1,0))
-SOUTHWEST = Heading('southwest', 225, (1,-1)) 
-WEST = Heading('west', 270, (0,-1))
-NORTHWEST = Heading('northwest', 315, (-1,-1))
-# Dictionary lookup for Heading classes
+NORTH = Heading('north', True, 0, (-1,0),
+    [
+     [(-5,-4),(-4,-5),(4,-5),(5,-4)],
+     [(-5,-3),(-4,-4),(-3,-5),(-2,-6),(2,-6),(3,-5),(4,-4),(5,-3)],
+     [(-4,-3),(-3,-4),(-2,-5),(-1,-6),(1,-6),(2,-5),(3,-4),(4,-3)],
+     [(-3,-3),(-2,-4),(-1,-5),(0,-6),(1,-5),(2,-4),(3,-3)],
+     [(-3,-2),(-2,-3),(-1,-4),(0,-5),(1,-4),(2,-3),(3,-2)],
+     [(-2,-2),(-1,-3),(0,-4),(1,-3),(2,-2)],
+     [(-2,-1),(-1,-2),(0,-3),(1,-2),(2,-1)],
+     [(-1,-1),(0,-2),(1,-1)],
+     [(0,-1)]
+    ])
+NORTHEAST = Heading('northeast', False, 45, (-1,1),
+    [
+     [(-1,-6),(0,-6),(1,-6),(2,-6),(6,-2),(6,-1),(6,0),(6,1)],
+     [(-1,-5),(0,-5),(1,-5),(2,-5),(3,-5),(4,-5),(5,-4),(5,-3),(5,-2),(5,-1),(5,0),(5,1)],
+     [(-1,-4),(0,-4),(1,-4),(2,-4),(3,-4),(4,-4),(4,-3),(4,-2),(4,-1),(4,0),(4,1)],
+     [(-1,-3),(0,-3),(1,-3),(2,-3),(3,-3),(3,-2),(3,-1),(3,0),(3,1)],
+     [(0,-2),(1,-2),(2,-2),(2,-1),(2,0)],
+     [(0,-1),(1,-1),(1,0)]
+    ])
+EAST = Heading('east', True, 90, (0,1),
+    [
+     [(4,-5),(5,-4),(5,4),(4,5)],
+     [(3,-5),(4,-4),(5,-3),(6,-2),(6,2),(5,3),(4,3),(3,5)],
+     [(3,-4),(4,-3),(5,-2),(6,-1),(6,1),(5,2),(4,3),(3,4)],
+     [(3,-3),(4,-2),(5,-1),(6,0),(5,-1),(4,2),(3,3)],
+     [(2,-3),(3,-2),(4,-1),(5,0),(4,1),(3,2),(2,3)],
+     [(2,-2),(3,-1),(4,0),(3,1),(2,2)],
+     [(1,-2),(2,-1),(3,0),(2,1),(1,2)],
+     [(1,-1),(2,0),(1,1)],
+     [(1,0)]
+    ])
+SOUTHEAST = Heading('southeast', False, 135, (1,1),
+    [
+     [(-1,6),(0,6),(1,6),(2,6),(6,2),(6,1),(6,0),(6,-1)],
+     [(-1,5),(0,5),(1,5),(2,5),(3,5),(4,5),(5,4),(5,3),(5,2),(5,1),(5,0),(5,-1)],
+     [(-1,4),(0,4),(1,4),(2,4),(3,4),(4,4),(4,3),(4,2),(4,1),(4,0),(4,-1)],
+     [(-1,3),(0,3),(1,3),(2,3),(3,3),(3,2),(3,1),(3,0),(3,-1)],
+     [(0,2),(1,2),(2,2),(2,1),(2,0)],
+     [(0,1),(1,1),(1,0)]
+    ])
+SOUTH = Heading('south', True, 180, (1,0),
+    [
+     [(-5,4),(-4,5),(4,5),(5,4)],
+     [(-5,3),(-4,4),(-3,5),(-2,6),(2,6),(3,5),(4,4),(5,3)],
+     [(-4,3),(-3,4),(-2,5),(-1,6),(1,6),(2,5),(3,4),(4,3)],
+     [(-3,3),(-2,4),(-1,5),(0,6),(1,5),(2,4),(3,3)],
+     [(-3,2),(-2,3),(-1,4),(0,5),(1,4),(2,3),(3,2)],
+     [(-2,2),(-1,3),(0,4),(1,3),(2,2)],
+     [(-2,1),(-1,2),(0,3),(1,2),(2,1)],
+     [(-1,1),(0,2),(1,1)],
+     [(0,1)]
+    ])
+SOUTHWEST = Heading('southwest', False, 225, (1,-1),
+    [
+     [(-6,-1),(-6,0),(-6,1),(-6,2),(-2,6),(-1,6),(0,6),(1,6)],
+     [(-5,-1),(-5,0),(-5,1),(-5,2),(-5,3),(-5,4),(-4,5),(-3,5),(-2,5),(-1,5),(0,5),(1,5)],
+     [(-4,-1),(-4,0),(-4,1),(-4,2),(-4,3),(-4,4),(-3,4),(-2,4),(-1,4),(0,4),(1,4)],
+     [(-3,-1),(-3,0),(-3,1),(-3,2),(-3,3),(-2,3),(-1,3),(0,-3),(1,3)],
+     [(-2,0),(-2,1),(-2,2),(-1,2),(0,2)],
+     [(-1,0),(-1,1),(0,1)]
+    ]) 
+WEST = Heading('west', True, 270, (0,-1),
+    [
+     [(-4,-5),(-5,-4),(-5,4),(-4,5)],
+     [(-3,-5),(-4,-4),(-5,-3),(-6,-2),(-6,2),(-5,3),(-4,3),(-3,5)],
+     [(-3,-4),(-4,-3),(-5,-2),(-6,-1),(-6,1),(-5,2),(-4,3),(-3,4)],
+     [(-3,-3),(-4,-2),(-5,-1),(-6,0),(-5,-1),(-4,2),(-3,3)],
+     [(-2,-3),(-3,-2),(-4,-1),(-5,0),(-4,1),(-3,2),(-2,3)],
+     [(-2,-2),(-3,-1),(-4,0),(-3,1),(-2,2)],
+     [(-1,-2),(-2,-1),(-3,0),(-2,1),(-1,2)],
+     [(-1,-1),(-2,0),(-1,1)],
+     [(-1,0)]
+    ])
+NORTHWEST = Heading('northwest', False, 315, (-1,-1),
+    [
+     [(1,-6),(0,-6),(-1,-6),(-2,-6),(-6,-2),(-6,-1),(-6,0),(-6,1)],
+     [(1,-5),(0,-5),(-1,-5),(-2,-5),(-3,-5),(-4,-5),(-5,-4),(-5,-3),(-5,-2),(-5,-1),(-5,0),(-5,1)],
+     [(1,-4),(0,-4),(-1,-4),(-2,-4),(-3,-4),(-4,-4),(-4,-3),(-4,-2),(-4,-1),(-4,0),(-4,1)],
+     [(1,-3),(0,-3),(-1,-3),(-2,-3),(-3,-3),(-3,-2),(-3,-1),(-3,0),(-3,1)],
+     [(0,-2),(-1,-2),(-2,-2),(-2,-1),(-2,0)],
+     [(0,-1),(-1,-1),(-1,0)]
+    ])
+# Dictionary lookup for the Heading classes.
 HEADINGS = {'0':NORTH,
     '45':NORTHEAST,
     '90':EAST,
@@ -68,7 +146,7 @@ class Terrain:
 
 # Define terrain types
 PLAINS = Terrain('plains')
-MOUNTAINS = Terrain('mountains', 6, 64)
+MOUNTAINS = Terrain('mountains', 6, 64, os.path.join(IMG_PATH, 'terrain_mountains.png'))
 CITADEL = Terrain('citadel')
 FOREST = Terrain('forest', 4, 12)
 TOWER = Terrain('tower')
@@ -127,7 +205,7 @@ class Actor:
             facing_location = MAP_JSON[facing_grid[0]][facing_grid[1]]
         return location_desc.format(curent_location.get('name'), self.heading.name, facing_location.get('name'))
     
-    def move(self):
+    def move(self, cheating=False):
         print('Started at {0}'.format(self.location))
         offset = self.heading.offset
         dest_type = MAP_JSON[self.location[0] + offset[0]][self.location[1] + offset[1]].get('terrain_type')
@@ -137,20 +215,42 @@ class Actor:
             move_cost = dest_terrain.move_cost / 2
         else:
             move_cost = dest_terrain.move_cost
-        if self.clock + move_cost <= 18:
-            # Enough energy left to move?
-            if self.energy >= dest_terrain.energy_cost:
-                # Set new location
-                self.location = (self.location[0] + offset[0], self.location[1] + offset[1])
-                self.clock += move_cost
-                # Subtract energy cost
-                self.energy -= dest_terrain.energy_cost
-                print('Moved to {0}'.format(self.location))
-            else:
-                print('Not enough energy left.')
+        if cheating:
+            # If we're cheating, we can move as far as we want with no energy cost.
+            self.location = (self.location[0] + offset[0], self.location[1] + offset[1])
+            print('Moved to {0}'.format(self.location))
         else:
-            print('Not enough hours left.')
+            if self.clock + move_cost <= 18:
+                # Enough energy left to move?
+                if self.energy >= dest_terrain.energy_cost:
+                    # Set new location
+                    self.location = (self.location[0] + offset[0], self.location[1] + offset[1])
+                    self.clock += move_cost
+                    # Subtract energy cost
+                    self.energy -= dest_terrain.energy_cost
+                    print('Moved to {0}'.format(self.location))
+                else:
+                    print('Not enough energy left.')
+            else:
+                print('Not enough hours left.')
 
+    def render_panorama(self):
+        # Take the Actor's position and heading, and build the list of terrain pieces to render.
+        for row in self.heading.view_offsets:
+            for offset in row:
+                 offset_grid = (self.location[0] + offset[0], self.location[1] + offset[1])
+                 # Off the edge of the map? Terrain == Frozen Wastes
+                 if offset_grid[0] < 0 or offset_grid[0] > 62 or offset_grid[1] < 0 or offset_grid[1] > 66:
+                     terrain = WASTES
+                 else:
+                     offset_location = MAP_JSON[offset_grid[0]][offset_grid[1]]
+                     terrain = TERRAIN[offset_location.get('terrain_type')]
+                 print(terrain.terrain_type)
+        #downs_path = os.path.join(lom.IMG_PATH, 'terrain_downs.png')
+        #downs_img = pygame.image.load(downs_path).convert_alpha()
+        #downs_img_size = (downs_img.get_size())
+        #downs_img_sml = pygame.transform.scale(downs_img, (int(downs_img_size[0]*0.7), int(downs_img_size[1]*0.7)))
+    
 class GameData:
     '''
     This class stores everything about a game in progress. 
