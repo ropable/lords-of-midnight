@@ -134,11 +134,11 @@ HEADINGS = {'0':NORTH,
     '315':NORTHWEST}
 
 class Terrain:
-    def __init__(self, terrain_type, move_cost=None, energy_cost=None, image=None):
+    def __init__(self, terrain_type, image=None, move_cost=None, energy_cost=None):
         self.terrain_type = terrain_type
+        self.image = image
         self.move_cost = move_cost or 2
         self.energy_cost = energy_cost or 8
-        self.image = image
         
     @property
     def name(self):
@@ -146,20 +146,20 @@ class Terrain:
 
 # Define terrain types
 PLAINS = Terrain('plains')
-MOUNTAINS = Terrain('mountains', 6, 64, os.path.join(IMG_PATH, 'terrain_mountains.png'))
-CITADEL = Terrain('citadel')
-FOREST = Terrain('forest', 4, 12)
-TOWER = Terrain('tower')
-HENGE = Terrain('henge')
-VILLAGE = Terrain('village')
-DOWNS = Terrain('downs', 4, 16)
-KEEP = Terrain('keep')
-SNOWHALL = Terrain('snowhall')
-LAKE = Terrain('lake')
-WASTES = Terrain('frozen_wastes', 999)
-RUIN = Terrain('ruin')
-LITH = Terrain('lith')
-CAVERN = Terrain('cavern')
+MOUNTAINS = Terrain('mountains', os.path.join(IMG_PATH, 'terrain_mountains.png'), 6, 64)
+CITADEL = Terrain('citadel', os.path.join(IMG_PATH, 'terrain_citadel.png'))
+FOREST = Terrain('forest', os.path.join(IMG_PATH, 'terrain_forest.png'), 4, 12)
+TOWER = Terrain('tower', os.path.join(IMG_PATH, 'terrain_tower.png'))
+HENGE = Terrain('henge', os.path.join(IMG_PATH, 'terrain_henge.png'))
+VILLAGE = Terrain('village', os.path.join(IMG_PATH, 'terrain_village.png'))
+DOWNS = Terrain('downs', os.path.join(IMG_PATH, 'terrain_downs.png'), 4, 16)
+KEEP = Terrain('keep', os.path.join(IMG_PATH, 'terrain_keep.png'))
+SNOWHALL = Terrain('snowhall', os.path.join(IMG_PATH, 'terrain_snowhall.png'))
+LAKE = Terrain('lake', os.path.join(IMG_PATH, 'terrain_lake.png'))
+WASTES = Terrain('frozen_wastes', os.path.join(IMG_PATH, 'terrain_wastes.png'), 999)
+RUIN = Terrain('ruin', os.path.join(IMG_PATH, 'terrain_ruin.png'))
+LITH = Terrain('lith', os.path.join(IMG_PATH, 'terrain_lith.png'))
+CAVERN = Terrain('cavern', os.path.join(IMG_PATH, 'terrain_cavern.png'))
 TERRAIN = {'plains':PLAINS,
     'mountains':MOUNTAINS,
     'citadel':CITADEL,
@@ -210,6 +210,9 @@ class Actor:
         offset = self.heading.offset
         dest_type = MAP_JSON[self.location[0] + offset[0]][self.location[1] + offset[1]].get('terrain_type')
         dest_terrain = TERRAIN.get(dest_type)
+        if dest_terrain == WASTES:
+            # Actor can't move into Frozen Wastes, even if cheating.
+            return
         # Enough time left in the day to move?
         if self.mounted: # Being mounted halves the terrain move cost.
             move_cost = dest_terrain.move_cost / 2
@@ -240,6 +243,7 @@ class Actor:
             for offset in row:
                  offset_grid = (self.location[0] + offset[0], self.location[1] + offset[1])
                  # Off the edge of the map? Terrain == Frozen Wastes
+                 #print(offset_grid)
                  if offset_grid[0] < 0 or offset_grid[0] > 62 or offset_grid[1] < 0 or offset_grid[1] > 66:
                      terrain = WASTES
                  else:
