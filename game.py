@@ -41,15 +41,15 @@ class StartScreen(engine.State):
         
 class GameScreen(engine.State):
     def paint(self, screen):
-        screen.fill(colours.blue)
-        land = pygame.surface.Surface((SCREENSIZE[0],SCREENSIZE[1]*0.39))
-        land.fill(colours.white)
-        screen.blit(land, (0,SCREENSIZE[1]*0.61))
+        screen.fill(colours.white)
+        #land = pygame.surface.Surface((SCREENSIZE[0],SCREENSIZE[1]*0.39))
+        #land.fill(colours.white)
+        #screen.blit(land, (0,SCREENSIZE[1]*0.61))
         # Display the name of the current actor
-        text.write(screen, font, (6,6), colours.yellow, gamedata.actor.name, 0)
-        text.write(screen, font, (6,20), colours.aqua, gamedata.actor.location_desc(), 0)
-        # Render render the panorama for the Actor's heading.
-        gamedata.actor.render_panorama()
+        text.write(screen, font, (6,6), colours.black, gamedata.actor.name, 0)
+        text.write(screen, font, (6,20), colours.black, gamedata.actor.location_desc(), 0)
+        # Render the Actor's perspective for their heading.
+        gamedata.actor.render_perspective(screen)
         pygame.display.update()
         
     def event(self, event):
