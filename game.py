@@ -7,25 +7,21 @@ __license__ = 'Public Domain'
 
 import pygame
 from pygame.locals import *
-#screen = pygame.display.set_mode((1024,768), SWSURFACE)
+pygame.font.init()
 import os
 os.environ["SDL_VIDEO_CENTERED"] = "1" ## Centre the graphics window.
 SCREENSIZE = (1024, 768)
 screen = pygame.display.set_mode(SCREENSIZE, 0, 32)
+#screen = pygame.display.set_mode((1024,768), SWSURFACE)
 
 from pgu import engine, text
 from easypg import colours
 
-import lom
-gamedata = lom.GameData()
-pygame.font.init()
-font = pygame.font.Font(lom.FONT_BENG, 16)
-CHEATING = True
     
 class StartScreen(engine.State):
-    def paint(self, screen): 
+    def paint(self, screen):
         screen.fill(colours.blue)
-        #message = 'Now explore the epic world of THE LORDS OF MIDNIGHT by Mike Singleton'
+        message = 'Now explore the epic world of THE LORDS OF MIDNIGHT by Mike Singleton'
         #text.writewrap(screen, font, pygame.Rect(10,10,100,100), colours.black, message)
         text.write(screen, font, (10,10), colours.green, 'Now explore the epic world of', 0)
         text.write(screen, font, (10,24), colours.yellow, 'THE LORDS OF MIDNIGHT', 0)
@@ -41,15 +37,19 @@ class StartScreen(engine.State):
         
 class GameScreen(engine.State):
     def paint(self, screen):
-        screen.fill(colours.white)
-        #land = pygame.surface.Surface((SCREENSIZE[0],SCREENSIZE[1]*0.39))
-        #land.fill(colours.white)
-        #screen.blit(land, (0,SCREENSIZE[1]*0.61))
-        # Display the name of the current actor
-        text.write(screen, font, (6,6), colours.black, gamedata.actor.name, 0)
-        text.write(screen, font, (6,20), colours.black, gamedata.actor.location_desc(), 0)
-        # Render the Actor's perspective for their heading.
-        gamedata.actor.render_perspective(screen)
+        screen.fill(colours.blue)
+        land = pygame.surface.Surface((SCREENSIZE[0],SCREENSIZE[1]*0.39))
+        land.fill(colours.white)
+        screen.blit(land, (0,SCREENSIZE[1]*0.61))
+        # Display the name of the current actor.
+        text.write(screen, font, (6,6), colours.yellow, gamedata.actor.name, 0)
+        # Describe what they are looking at.
+        text.write(screen, font, (6,20), colours.aqua, gamedata.actor.location_desc(), 0)
+        # Draw their heraldry.
+        shield = pygame.image.load(gamedata.actor.heraldry).convert_alpha()
+        #shield = aspect_scale(terrain_img, (100,60))# Render the Actor's perspective for their heading.
+        screen.blit(shield, (920,6))
+        #gamedata.actor.render_perspective(screen)
         pygame.display.update()
         
     def event(self, event):
@@ -103,13 +103,18 @@ class GameScreen(engine.State):
             elif event.key == K_q:
                 # Move character forwards (if possible)
                 print(gamedata.actor.clock)
-                gamedata.actor.move(cheating=CHEATING)
+                gamedata.actor.move(gamedata)
             elif event.key == K_r:
                 # Enter think screen
                 pass
             self.repaint()
     
 # Run the main game loop.
+import lom
+gamedata = lom.GameData(cheatmode=False)
+#CHEATING = True
+font = pygame.font.Font(lom.FONT_BENG, 16)
+
 pygame.init()
 game = engine.Game()
 game.run(GameScreen(game), screen)
