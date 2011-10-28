@@ -1,22 +1,23 @@
 #!/usr/bin/python
-from __future__ import division
+from __future__ import division, print_function, unicode_literals
 
 __author__ = 'Ashley Felton'
 __version__ = '0.0'
 __license__ = 'Public Domain'
 
+import os
 import pygame
 from pygame.locals import *
+
+import lom_data
+
 pygame.font.init()
-import os
 os.environ["SDL_VIDEO_CENTERED"] = "1" ## Centre the graphics window.
-SCREENSIZE = (1024, 768)
-screen = pygame.display.set_mode(SCREENSIZE, 0, 32)
-#screen = pygame.display.set_mode((1024,768), SWSURFACE)
+screen = pygame.display.set_mode(lom_data.SCREENSIZE, 0, 32)
+#screen = pygame.display.set_mode(lom_data.SCREENSIZE, SWSURFACE)
 
 from pgu import engine, text
 from easypg import colours
-
     
 class StartScreen(engine.State):
     def paint(self, screen):
@@ -38,18 +39,17 @@ class StartScreen(engine.State):
 class GameScreen(engine.State):
     def paint(self, screen):
         screen.fill(colours.blue)
-        land = pygame.surface.Surface((SCREENSIZE[0],SCREENSIZE[1]*0.39))
+        land = pygame.surface.Surface((lom_data.SCREENSIZE[0], lom_data.SCREENSIZE[1]*0.39))
         land.fill(colours.white)
-        screen.blit(land, (0,SCREENSIZE[1]*0.61))
+        screen.blit(land, (0, lom_data.SCREENSIZE[1]*0.61))
         # Display the name of the current actor.
         text.write(screen, font, (6,6), colours.yellow, gamedata.actor.name, 0)
         # Describe what they are looking at.
-        text.write(screen, font, (6,20), colours.aqua, gamedata.actor.location_desc(), 0)
+        text.write(screen, font, (6,20), colours.aqua, gamedata.actor.location_desc(gamedata.map), 0)
         # Draw their heraldry.
         shield = pygame.image.load(gamedata.actor.heraldry).convert_alpha()
-        #shield = aspect_scale(terrain_img, (100,60))# Render the Actor's perspective for their heading.
         screen.blit(shield, (920,6))
-        #gamedata.actor.render_perspective(screen)
+        #gamedata.actor.render_perspective(gamedata.map, screen)
         pygame.display.update()
         
     def event(self, event):
@@ -93,16 +93,13 @@ class GameScreen(engine.State):
                 # Change actor heading to northwest
                 gamedata.actor.heading = NORTHWEST
             elif event.key == K_MINUS:
-                # Rotate heading CCW
-                new_bearing = gamedata.actor.heading.rotate_ccw()
-                gamedata.actor.heading = lom.HEADINGS.get(new_bearing)
+                # Rotate actor heading CCW
+                gamedata.actor.rotate_ccw()
             elif event.key == K_EQUALS:
-                # Rotate heading CW
-                new_bearing = gamedata.actor.heading.rotate_cw()
-                gamedata.actor.heading = lom.HEADINGS.get(new_bearing)
+                # Rotate actor heading CW
+                gamedata.actor.rotate_cw()
             elif event.key == K_q:
                 # Move character forwards (if possible)
-                print(gamedata.actor.clock)
                 gamedata.actor.move(gamedata)
             elif event.key == K_r:
                 # Enter think screen
@@ -110,10 +107,8 @@ class GameScreen(engine.State):
             self.repaint()
     
 # Run the main game loop.
-import lom
-gamedata = lom.GameData(cheatmode=False)
-#CHEATING = True
-font = pygame.font.Font(lom.FONT_BENG, 16)
+gamedata = lom_data.DefaultGameData(cheatmode=True)
+font = pygame.font.Font(lom_data.FONT_BENG, 16)
 
 pygame.init()
 game = engine.Game()

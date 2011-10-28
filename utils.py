@@ -1,6 +1,23 @@
 #!/usr/bin/python
-from __future__ import division
+from __future__ import division, print_function, unicode_literals
+
 import pygame
+import json
+
+def edit_map_json(row, col, key, value):
+    '''
+    Convenience method to edit the JSON map data file.
+    '''
+    if not isinstance(row, int) or not isinstance(col, int):
+        raise AssertionError('Row/column must be integer values.')
+    # Load the map from the external file
+    map = open('data/map.json','r')
+    map_json = json.loads(map.readline())
+    map.close()
+    map_json[row][col][str(key)] = str(value)
+    map = open('data/map.json','w')
+    map.write(json.dumps(map_json))
+    map.close()
 
 def aspect_scale(img,(bx,by)):
     '''
@@ -73,7 +90,6 @@ def getIntersectPoint(p1, p2, p3, p4):
         return (int(x),int(y))
     else:
         return None
-
 
 def drawpoints(cardinal=True, grids=False, screen=None):
     vp1 = (512, 466) # Couple of pixels above the horizon
