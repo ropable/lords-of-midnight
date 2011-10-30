@@ -8,17 +8,17 @@ __license__ = 'Public Domain'
 import os
 import pygame
 from pygame.locals import *
+from pgu import engine, text
+from easypg import colours
 
 import lom_data
+from utils import draw_grids
 
 pygame.font.init()
 os.environ["SDL_VIDEO_CENTERED"] = "1" ## Centre the graphics window.
 screen = pygame.display.set_mode(lom_data.SCREENSIZE, 0, 32)
 #screen = pygame.display.set_mode(lom_data.SCREENSIZE, SWSURFACE)
 
-from pgu import engine, text
-from easypg import colours
-    
 class StartScreen(engine.State):
     def paint(self, screen):
         screen.fill(colours.blue)
@@ -49,8 +49,9 @@ class GameScreen(engine.State):
         # Draw their heraldry.
         shield = pygame.image.load(gamedata.actor.heraldry).convert_alpha()
         screen.blit(shield, (920,6))
-        #gamedata.actor.render_perspective(gamedata.world, screen)
-        # Check the facing direction for monsters, wild horses, armies, or other lords.
+        # Draw the actor's panoramic view.
+        draw_grids(cardinal=gamedata.actor.heading.cardinal, grids=True, screen=screen)
+        gamedata.actor.render_perspective(gamedata.world, screen)
         pygame.display.update()
         
     def event(self, event):

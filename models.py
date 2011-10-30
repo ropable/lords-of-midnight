@@ -167,6 +167,25 @@ class Actor:
         #print('Current coords: {0}'.format(self.location))
         current_location = world[self.location[0]][self.location[1]]
         #print(current_location)
+        grid_coords = []
+        offset = self.heading.offset            
+        if self.heading.cardinal:
+            draw_coords = [(512, 469), (512, 472), (512, 477), (512, 486), (512, 507), (512, 568)]
+            grid_coords.append( (self.location[0] + (offset[0]*6), self.location[1] + (offset[1]*6)) )
+            grid_coords.append( (self.location[0] + (offset[0]*5), self.location[1] + (offset[1]*5)) )
+            grid_coords.append( (self.location[0] + (offset[0]*4), self.location[1] + (offset[1]*4)) )
+            grid_coords.append( (self.location[0] + (offset[0]*3), self.location[1] + (offset[1]*3)) )
+            grid_coords.append( (self.location[0] + (offset[0]*2), self.location[1] + (offset[1]*2)) )
+            grid_coords.append( (self.location[0] + (offset[0]), self.location[1] + (offset[1])) )
+        else:
+            draw_coords = [(512, 473), (512, 479), (512, 493), (512, 541)]
+            grid_coords.append( (self.location[0] + (offset[0]*4), self.location[1] + (offset[1]*4)) )
+            grid_coords.append( (self.location[0] + (offset[0]*3), self.location[1] + (offset[1]*3)) )
+            grid_coords.append( (self.location[0] + (offset[0]*2), self.location[1] + (offset[1]*2)) )
+            grid_coords.append( (self.location[0] + (offset[0]), self.location[1] + (offset[1])) )
+        for i in grid_coords:
+            pass
+        '''
         for row in self.heading.view_offsets:
             x = 0
             for offset in row:
@@ -189,6 +208,16 @@ class Actor:
                     pass
                 x += 100
             y += 60
+            '''
+        # Check the facing direction for monsters, wild horses, armies, or other lords.
+        offset = self.heading.offset
+        facing_coord = (self.location[0] + offset[0], self.location[1] + offset[1])
+        facing_world_grid = world[facing_coord[0]][facing_coord[1]]
+        if facing_world_grid.get('monster'):
+            monster = eval('lom_data.' + facing_world_grid.get('monster').upper())
+            monster_img = pygame.image.load(monster.image).convert_alpha()
+            blit_y = (lom_data.SCREENSIZE[1] - monster_img.get_height())
+            screen.blit(monster_img, (500,blit_y))
 
 class GameData:
     '''

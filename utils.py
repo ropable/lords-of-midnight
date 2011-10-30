@@ -3,8 +3,9 @@ from __future__ import division, print_function, unicode_literals
 
 import pygame
 import json
+from easypg import colours
 
-def edit_map_json(row, col, key, value):
+def edit_world_json(row, col, key, value):
     '''
     Convenience method to edit the JSON world data file.
     '''
@@ -55,7 +56,7 @@ def calculateGradient(p1, p2):
         m = (p1[1] - p2[1]) / (p1[0] - p2[0])
         return m
     else:
-       return None
+        return None
 
 def calculateYAxisIntersect(p, m):
     # Calculate the point 'b' where line crosses the Y axis
@@ -86,15 +87,15 @@ def getIntersectPoint(p1, p2, p3, p4):
                 x = p3[0]
                 y = (m1 * x) + b1           
             else:
-                assert false
+                assert False
         return (int(x),int(y))
     else:
         return None
 
-def drawpoints(cardinal=True, grids=False, screen=None):
-    vp1 = (512, 466) # Couple of pixels above the horizon
-    vp2 = (128, 462) # Slightly lower.
-    vp3 = (896, 462)
+def draw_grids(cardinal=True, grids=False, screen=None):
+    vp1 = (512, 462) # Couple of pixels above the horizon
+    vp2 = (128, 460)
+    vp3 = (896, 460)
     # Don't use these anymore, but keep for reference.
     if cardinal:
         sp1 = [-4608,-3072,-1792,-768,0,512,1024,1792,2816,4096] # Midpoint: 512
@@ -102,149 +103,33 @@ def drawpoints(cardinal=True, grids=False, screen=None):
         sp3 = [-3072,-1792,-768,0,512,896,1280,1792] #Midpoint: 896
     else:
         sp1 = [-4992,-3456,-2176,-1152,-384,128,512,896,1408,2176,3200,4480,6016] # Midpoint: 512
-        sp2 = [-1152,-384,128,640,1408,2432,3712,5248,7040] # Midpoint: 128
-        sp3 = [-4224,-2688,-1408,-384,384,896,1408,2176] #Midpoint: 896
+        sp2 = [-256,128,640,1408,2432,3712] # Midpoint: 128
+        sp3 = [-2688,-1408,-384,384,896,1408] #Midpoint: 896
     if grids:
-        pass
-        #for i in sp1:
-        #    pygame.draw.line(screen, colours.aqua, (i, 568), vp1, 1)            
-        #for i in sp2:
-        #    pygame.draw.line(screen, colours.red, (i, 568), vp2, 1)
+        for i in sp1:
+            pygame.draw.line(screen, colours.aqua, (i, 568), vp1, 1)            
+        for i in sp2:
+            pygame.draw.line(screen, colours.red, (i, 568), vp2, 1)
         #for i in sp3:
         #    pygame.draw.line(screen, colours.green, (i, 568), vp3, 1)
         #pygame.draw.line(screen, colours.green, (-4992, 568), vp1, 1)
         #pygame.draw.line(screen, colours.green, vp2, (896,568), 1)
-    intercardinal_points = [
-        [
-            getIntersectPoint(p1=vp1, p2=(-4992,568), p3=vp2, p4=(-384,568)),
-            getIntersectPoint(p1=vp1, p2=(-4992,568), p3=vp2, p4=(128,568)),
-            getIntersectPoint(p1=vp1, p2=(-4992,568), p3=vp2, p4=(640,568)),
-            getIntersectPoint(p1=vp1, p2=(-4992,568), p3=vp2, p4=(1408,568)),
-            getIntersectPoint(p1=vp1, p2=(6016,568), p3=vp3, p4=(-384,568)),
-            getIntersectPoint(p1=vp1, p2=(6016,568), p3=vp3, p4=(384,568)),
-            getIntersectPoint(p1=vp1, p2=(6016,568), p3=vp3, p4=(896,568)),
-            getIntersectPoint(p1=vp1, p2=(6016,568), p3=vp3, p4=(1408,568)),
-            
-        ],
-        [
-            getIntersectPoint(p1=vp1, p2=(-3456,568), p3=vp2, p4=(-384,568)),
-            getIntersectPoint(p1=vp1, p2=(-3456,568), p3=vp2, p4=(128,568)),
-            getIntersectPoint(p1=vp1, p2=(-3456,568), p3=vp2, p4=(640,568)),
-            getIntersectPoint(p1=vp1, p2=(-3456,568), p3=vp2, p4=(1408,568)),
-            getIntersectPoint(p1=vp1, p2=(-3456,568), p3=vp2, p4=(2432,568)),
-            getIntersectPoint(p1=vp1, p2=(-3456,568), p3=vp2, p4=(3712,568)),
-            getIntersectPoint(p1=vp1, p2=(4480,568), p3=vp3, p4=(-2688,568)),
-            getIntersectPoint(p1=vp1, p2=(4480,568), p3=vp3, p4=(-1408,568)),
-            getIntersectPoint(p1=vp1, p2=(4480,568), p3=vp3, p4=(-384,568)),
-            getIntersectPoint(p1=vp1, p2=(4480,568), p3=vp3, p4=(384,568)),
-            getIntersectPoint(p1=vp1, p2=(4480,568), p3=vp3, p4=(896,568)),
-            getIntersectPoint(p1=vp1, p2=(4480,568), p3=vp3, p4=(1408,568))
-        ],
-        [
-            #getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(896,568)),
-            #getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(1408,568)),
-            #getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(2432,568)),
-            #getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(-384,568)),
-            #getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(384,568)),
-            #getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(896,568))
-        ],
-        [
-            #getIntersectPoint(p1=vp1, p2=(-4608,568), p3=vp2, p4=(-1152,568)),
-            #getIntersectPoint(p1=vp1, p2=(-3072,568), p3=vp2, p4=(-384,568)),
-            #getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(128,568)),
-            #getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(512,568)),
-            #getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(896,568)),
-            getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(1408,568)),
-            #getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(0,568)),
-            #getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(512,568)),
-            #getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(896,568)),
-            #getIntersectPoint(p1=vp1, p2=(4096,568), p3=vp3, p4=(1280,568)),
-            #getIntersectPoint(p1=vp1, p2=(5632,568), p3=vp3, p4=(1792,568)),
-        ],
-        [
-            #getIntersectPoint(p1=vp1, p2=(-3072,568), p3=vp2, p4=(-1152,568)),
-            #getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(-384,568)),
-            #getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(128,568)),
-            #getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(512,568)),
-            getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(640,568)),
-            #getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(512,568)),
-            #getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(896,568)),
-            #getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(1280,568)),
-            #getIntersectPoint(p1=vp1, p2=(4096,568), p3=vp3, p4=(1792,568)),
-        ],
-        [
-            #getIntersectPoint(p1=vp1, p2=(128,568), p3=vp2, p4=(128,568)),
-            #getIntersectPoint(p1=vp1, p2=(896,568), p3=vp3, p4=(896,568)),
+    cardinal_intersects = [
+        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(5632,568)),
+        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(4096,568)),
+        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(2816,568)),
+        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(1792,568)),
+        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(1024,568)),
+        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(512,568))
         ]
-    ]
-    
-    cardinal_points = [
-        [
-            getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(2816,568)),
-            getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(4096,568)),
-            getIntersectPoint(p1=vp1, p2=(512, 568), p3=vp2, p4=(5632,568)),
-            getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(-3072,568)),
-            getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(-1792,568)),
-        ],
-        [
-            getIntersectPoint(p1=vp1, p2=(-3072,568), p3=vp2, p4=(512,568)),
-            getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(1024,568)),
-            getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(1792,568)),
-            getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(2816,568)),
-            getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(4096,568)),
-            getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(-1792,568)),
-            getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(-768,568)),
-            getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(0,568)),
-            getIntersectPoint(p1=vp1, p2=(4096,568), p3=vp3, p4=(512,568)),
-        ],
-        [
-            getIntersectPoint(p1=vp1, p2=(-4608,568), p3=vp2, p4=(-256,568)),
-            getIntersectPoint(p1=vp1, p2=(-3072,568), p3=vp2, p4=(128,568)),
-            getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(512,568)),
-            getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(1024,568)),
-            getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(1792,568)),
-            getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(2816,568)),
-            getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(-768,568)),
-            getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(0,568)),
-            getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(512,568)),
-            getIntersectPoint(p1=vp1, p2=(4096,568), p3=vp3, p4=(896,568)),
-            getIntersectPoint(p1=vp1, p2=(5632,568), p3=vp3, p4=(1280,568)),
-        ],
-        [
-            getIntersectPoint(p1=vp1, p2=(-4608,568), p3=vp2, p4=(-768,568)),
-            getIntersectPoint(p1=vp1, p2=(-3072,568), p3=vp2, p4=(-256,568)),
-            getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(128,568)),
-            getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(512,568)),
-            getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(1024,568)),
-            getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(1792,568)),
-            getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(0,568)),
-            getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(512,568)),
-            getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(896,568)),
-            getIntersectPoint(p1=vp1, p2=(4096,568), p3=vp3, p4=(1280,568)),
-            getIntersectPoint(p1=vp1, p2=(5632,568), p3=vp3, p4=(1792,568)),
-        ],
-        [
-            getIntersectPoint(p1=vp1, p2=(-3072,568), p3=vp2, p4=(-768,568)),
-            getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(-256,568)),
-            getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(128,568)),
-            getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(512,568)),
-            getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(1024,568)),
-            getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(512,568)),
-            getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(896,568)),
-            getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(1280,568)),
-            getIntersectPoint(p1=vp1, p2=(4096,568), p3=vp3, p4=(1792,568)),
-        ],
-        [
-            getIntersectPoint(p1=vp1, p2=(-1792,568), p3=vp2, p4=(-768,568)),
-            getIntersectPoint(p1=vp1, p2=(-768,568), p3=vp2, p4=(-256,568)),
-            getIntersectPoint(p1=vp1, p2=(0,568), p3=vp2, p4=(128,568)),
-            getIntersectPoint(p1=vp1, p2=(512,568), p3=vp2, p4=(512,568)),
-            getIntersectPoint(p1=vp1, p2=(1024,568), p3=vp3, p4=(896,568)),
-            getIntersectPoint(p1=vp1, p2=(1792,568), p3=vp3, p4=(1280,568)),
-            getIntersectPoint(p1=vp1, p2=(2816,568), p3=vp3, p4=(1792,568)),
+    intercardinal_intersects = [
+        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(3712,568)),
+        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(2432,568)),
+        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(1408,568)),
+        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(640,568))                        
         ]
-    ]
     if cardinal:
-        return cardinal_points
+        print(cardinal_intersects)
     else:
-        return intercardinal_points
+        print(intercardinal_intersects)
+    
