@@ -71,28 +71,28 @@ class GameScreen(engine.State):
                 gamedata.actor = gamedata.rorthron
             elif event.key == K_1:
                 # Change actor heading to north
-                gamedata.actor.heading = NORTH
+                gamedata.actor.heading = lom_data.NORTH
             elif event.key == K_2:
                 # Change actor heading to northeast
-                gamedata.actor.heading = NORTHEAST
+                gamedata.actor.heading = lom_data.NORTHEAST
             elif event.key == K_3:
                 # Change actor heading to east
-                gamedata.actor.heading = EAST
+                gamedata.actor.heading = lom_data.EAST
             elif event.key == K_4:
                 # Change actor heading to southeast
-                gamedata.actor.heading = SOUTHEAST
+                gamedata.actor.heading = lom_data.SOUTHEAST
             elif event.key == K_5:
                 # Change actor heading to south
-                gamedata.actor.heading = SOUTH
+                gamedata.actor.heading = lom_data.SOUTH
             elif event.key == K_6:
                 # Change actor heading to southwest
-                self.b.actor.heading = SOUTHWEST
+                gamedata.actor.heading = lom_data.SOUTHWEST
             elif event.key == K_7:
                 # Change actor heading to west
-                gamedata.actor.heading = WEST
+                gamedata.actor.heading = lom_data.WEST
             elif event.key == K_8:
                 # Change actor heading to northwest
-                gamedata.actor.heading = NORTHWEST
+                gamedata.actor.heading = lom_data.NORTHWEST
             elif event.key == K_MINUS:
                 # Rotate actor heading CCW
                 gamedata.actor.rotate_ccw()
