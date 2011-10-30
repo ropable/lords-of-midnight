@@ -6,18 +6,18 @@ import json
 
 def edit_map_json(row, col, key, value):
     '''
-    Convenience method to edit the JSON map data file.
+    Convenience method to edit the JSON world data file.
     '''
     if not isinstance(row, int) or not isinstance(col, int):
         raise AssertionError('Row/column must be integer values.')
-    # Load the map from the external file
-    map = open('data/map.json','r')
-    map_json = json.loads(map.readline())
-    map.close()
+    # Load the world from the external file
+    world = open('data/world.json','r')
+    map_json = json.loads(world.readline())
+    world.close()
     map_json[row][col][str(key)] = str(value)
-    map = open('data/map.json','w')
-    map.write(json.dumps(map_json))
-    map.close()
+    world = open('data/world.json','w')
+    world.write(json.dumps(map_json))
+    world.close()
 
 def aspect_scale(img,(bx,by)):
     '''

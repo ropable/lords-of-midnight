@@ -22,7 +22,7 @@ from easypg import colours
 class StartScreen(engine.State):
     def paint(self, screen):
         screen.fill(colours.blue)
-        message = 'Now explore the epic world of THE LORDS OF MIDNIGHT by Mike Singleton'
+        #message = 'Now explore the epic world of THE LORDS OF MIDNIGHT by Mike Singleton'
         #text.writewrap(screen, font, pygame.Rect(10,10,100,100), colours.black, message)
         text.write(screen, font, (10,10), colours.green, 'Now explore the epic world of', 0)
         text.write(screen, font, (10,24), colours.yellow, 'THE LORDS OF MIDNIGHT', 0)
@@ -45,11 +45,12 @@ class GameScreen(engine.State):
         # Display the name of the current actor.
         text.write(screen, font, (6,6), colours.yellow, gamedata.actor.name, 0)
         # Describe what they are looking at.
-        text.write(screen, font, (6,20), colours.aqua, gamedata.actor.location_desc(gamedata.map), 0)
+        text.write(screen, font, (6,20), colours.aqua, gamedata.actor.location_desc(gamedata.world), 0)
         # Draw their heraldry.
         shield = pygame.image.load(gamedata.actor.heraldry).convert_alpha()
         screen.blit(shield, (920,6))
-        #gamedata.actor.render_perspective(gamedata.map, screen)
+        #gamedata.actor.render_perspective(gamedata.world, screen)
+        # Check the facing direction for monsters, wild horses, armies, or other lords.
         pygame.display.update()
         
     def event(self, event):

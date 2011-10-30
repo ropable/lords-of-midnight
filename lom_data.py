@@ -5,7 +5,7 @@ import os
 import json
 from sys import path
 
-from models import Heading, Terrain, Object, Race, Actor, GameData
+from models import Heading, Terrain, Object, Monster, Race, Actor, GameData
 
 PROJECT_PATH = path[0]
 ASSET_PATH = PROJECT_PATH + os.sep + 'assets'
@@ -26,7 +26,7 @@ DRAGON = Race('')
 
 # Define terrain types
 PLAINS = Terrain('plains')
-MOUNTAINS = Terrain('mountains', os.path.join(IMG_PATH, 'terrain_mountains.png'), 5.5, 64)
+MOUNTAINS = Terrain('mountains', os.path.join(IMG_PATH, 'terrain_mountains.png'), 3, 64)
 CITADEL = Terrain('citadel', os.path.join(IMG_PATH, 'terrain_citadel.png'))
 FOREST = Terrain('forest', os.path.join(IMG_PATH, 'terrain_forest.png'), 2.5, 12)
 TOWER = Terrain('tower', os.path.join(IMG_PATH, 'terrain_tower.png'))
@@ -42,7 +42,7 @@ LITH = Terrain('lith', os.path.join(IMG_PATH, 'terrain_lith.png'))
 CAVERN = Terrain('cavern', os.path.join(IMG_PATH, 'terrain_cavern.png'))
 
 # Define headings.
-# A note about offsets: due to how the map data is stored (rows of columns),
+# A note about offsets: due to how the world data is stored (rows of columns),
 # these offsets are NOT X,Y!
 # Rather the opposite: (a,-b) means to move one row down (-Y) and one column left (-X). 
 NORTH = Heading('north', True, 0, (-1,0), 
@@ -130,45 +130,70 @@ NORTHWEST = Heading('northwest', False, 315, (-1,-1),
      [(0,-1),(-1,-1),(-1,0)]
     ])
 
+# Define objects
+
+# Define monsters
+WOLVES = Monster(name = 'wolves',
+    hostile = True,
+    image = os.path.join(IMG_PATH, 'wolf.png'))
+DRAGONS = Monster(name = 'dragons',
+    hostile = True,
+    image = os.path.join(IMG_PATH, 'dragon.png'))
+ICE_TROLLS = Monster(name = 'ice_trolls',
+    hostile = True,
+    image = os.path.join(IMG_PATH, 'ice_troll.png'))
+SKULKRIN = Monster(name = 'skulkrin',
+    hostile = True,
+    image = os.path.join(IMG_PATH, 'skulkrin.png'))
+WILD_HORSES = Monster(name='wild horses',
+    hostile=False,
+    image = os.path.join(IMG_PATH, 'horse.png'))
+
 class DefaultGameData(GameData):
-    '''
-    A class to define all the additional data for a "default" game.
+    '''A class to define all the additional data for a "default" game.
     You could mod the game by altering or subclassing this.
     '''
-    # Load the map from the external file into a dictionary.
-    map = json.loads(open('data/map.json','r').readline())
+    # Load the world from the external file into a dictionary.
+    world = json.loads(open('data/world.json','r').readline())
     # For each grid cell, replace the terrain_type with the correct terrain class.
-    for row in map:
+    for row in world:
         for grid in row:
             grid['terrain_type'] = eval(grid['terrain_type'].upper())
     
     # Define initial player-controlled actors.
-    luxor = Actor(
-        name = 'Luxor the Moonprince',
-        location = (41,13),
+    luxor = Actor(location = (41,13),
+        name = 'Luxor',
+        title = 'the Moonprince',
+        #image
+        #image_mounted
         mounted = True,
         heraldry = os.path.join(IMG_PATH, 'shield_luxor.png'),
         race = FREE)
-    morkin = Actor(
+    morkin = Actor(location = (41,13),
         name = 'Morkin',
-        location = (41,13),
+        title = None,
+        #image
+        #image_mounted
         mounted = True,
         icefear = False,
         heraldry = os.path.join(IMG_PATH, 'shield_morkin.png'),
         race = HALF_FEY)
-    corleth = Actor(
-        name='Corleth the Fey',
-        location=(41,13),
-        mounted=True,
-        heraldry=os.path.join(IMG_PATH, 'shield_corleth.png'),
+    corleth = Actor(location = (41,13),
+        name = 'Corleth',
+        title = 'the Fey',
+        #image
+        #image_mounted
+        mounted = True,
+        heraldry = os.path.join(IMG_PATH, 'shield_corleth.png'),
         race = FEY)
-    rorthron = Actor(
-        name='Rorthron',
-        location=(41,13),
-        mounted=True,
-        heraldry=os.path.join(IMG_PATH, 'shield_rorthron.png'),
+    rorthron = Actor(location = (41,13),
+        name = 'Rorthron',
+        title = 'the Wise',
+        #image
+        #image_mounted
+        mounted = True,
+        heraldry = os.path.join(IMG_PATH, 'shield_rorthron.png'),
         race = WISE)
-     
     def __init__(self, *args, **kwargs):
         self.cheatmode = kwargs.get('cheatmode') or False
         self.actors.append(self.luxor)

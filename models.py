@@ -16,18 +16,6 @@ class Heading:
         self.bearing = bearing
         self.offset = offset # Position offset of the square in front.
         self.view_offsets = view_offsets
-    
-    def rotate_cw(self):
-        if (self.bearing + 45) == 360:
-            return '0'
-        else:
-            return str(self.bearing + 45)
-
-    def rotate_ccw(self):
-        if (self.bearing - 45) < 0:
-            return '315'
-        else:
-            return str(self.bearing - 45)
 
 class Terrain:
     def __init__(self, terrain_type, image=None, move_cost=None, energy_cost=None):
@@ -41,8 +29,17 @@ class Terrain:
         return self.name.replace('_', ' ')
 
 class Object:
-    pass
+    def __init__(self, *args, **kwargs):
+        self.name = kwargs.get('name')
 
+class Monster:
+    def __init__(self, *args, **kwargs):
+        self.name = kwargs.get('name')
+        self.hostile = kwargs.get('hostile') or True
+        self.image = kwargs.get('image')
+        self.strength = kwargs.get('strength')
+        self.bane = kwargs.get('bane') # Is there an "auto-kill" object for this monster?
+        
 class Race:
     def __init__(self, *args, **kwargs):
         self.name = kwargs.get('name')
@@ -50,14 +47,16 @@ class Race:
 
 class Actor:
     def __init__(self, *args, **kwargs):
+        self.location = kwargs.get('location') # A two-tuple coordinate (NOT x,y coords) of current grid location.
+        self.heading = kwargs.get('heading') or lom_data.NORTH
+        self.time = kwargs.get('time') or 8 # 8 AM is dawn.
         self.name = kwargs.get('name')
         self.title = kwargs.get('title')
-        self.location = kwargs.get('location') # A two-tuple coordinate (NOT x,y coords).
+        self.image = kwargs.get('image')
+        self.image_mounted = kwargs.get('image_mounted')
+        self.strength = kwargs.get('strength')
         self.energy = kwargs.get('energy') or 127 # Energy ranges between 0 and 127.
         self.health = kwargs.get('health') or 127 # Health level for a Lord ranges between 0 (dead) and 127 (full health).
-        self.heading = kwargs.get('heading') or lom_data.NORTH
-        self.bearing = kwargs.get('bearing') or 0
-        self.clock = kwargs.get('clock') or 8 # 8 AM is dawn.
         self.weapon = kwargs.get('weapon') or None
         self.mounted = kwargs.get('mounted') or True
         self.heraldry = kwargs.get('heraldry') or None
@@ -69,36 +68,39 @@ class Actor:
         headings = {'0':lom_data.NORTH, '45':lom_data.NORTHEAST, '90':lom_data.EAST,
                     '135':lom_data.SOUTHEAST, '180':lom_data.SOUTH, '225':lom_data.SOUTHWEST,
                     '270':lom_data.WEST, '315':lom_data.NORTHWEST}
-        if (self.bearing + 45) == 360:
-            self.bearing = 0
+        bearing = self.heading.bearing
+        if bearing + 45 == 360:
+            bearing = 0
         else:
-            self.bearing = self.bearing + 45
-        self.heading = headings[str(self.bearing)]
+            bearing += 45
+        self.heading = headings[str(bearing)]
         
     def rotate_ccw(self):
         # Alters the Actor's bearing and heading by 45 degrees counterclockwise.
         headings = {'0':lom_data.NORTH, '45':lom_data.NORTHEAST, '90':lom_data.EAST,
                     '135':lom_data.SOUTHEAST, '180':lom_data.SOUTH, '225':lom_data.SOUTHWEST,
                     '270':lom_data.WEST, '315':lom_data.NORTHWEST}
-        if (self.bearing - 45) < 0:
-            self.bearing = 315
+        bearing = self.heading.bearing
+        if bearing - 45 < 0:
+            bearing = 315
         else:
-            self.bearing = self.bearing - 45
-        self.heading = headings[str(self.bearing)]
+            bearing -= 45
+        self.heading = headings[str(bearing)]
         
-    def location_desc(self, map):
+    def location_desc(self, world):
         '''
         Returns a string description of where the Actor is standing, plus what they are looking at.
         '''
         location_desc = 'He stands at {0}, looking {1} to {2}.'
-        current_location = map[self.location[0]][self.location[1]]
+        current_location = world[self.location[0]][self.location[1]]
         offset = self.heading.offset
         facing_grid = (self.location[0] + offset[0], self.location[1] + offset[1])
-        facing_location = map[facing_grid[0]][facing_grid[1]]
+        facing_location = world[facing_grid[0]][facing_grid[1]]
         # Still facing plains? Look further ahead.
-        while facing_location.get('terrain_type') == 'plains':
+        # TODO: only look three squares ahead.
+        while facing_location.get('terrain_type') == lom_data.PLAINS:
             facing_grid = (facing_grid[0] + offset[0], facing_grid[1] + offset[1])
-            facing_location = map[facing_grid[0]][facing_grid[1]]
+            facing_location = world[facing_grid[0]][facing_grid[1]]
         return location_desc.format(current_location.get('name'), self.heading.name,
             facing_location.get('name'))
 
@@ -107,9 +109,9 @@ class Actor:
         Returns a description of the Actor's current time and energy level.
         '''
         energy_desc = ''
-        if self.clock == gamedata.dawn:
+        if self.time == gamedata.dawn:
             message = 'It is dawn and {0} is {1}'
-        elif self.clock >= gamedata.nightfall:
+        elif self.time >= gamedata.nightfall:
             message = 'It is night and {0} is {1}'
         else:
             message = '{0} hours of the day remain and {1} is {2}'
@@ -120,15 +122,14 @@ class Actor:
         return 'message'
         
     def move(self, gamedata):
-        #import lom_data
-        print('Started at {0}'.format(self.location))
+        #print('Started at {0}'.format(self.location))
         offset = self.heading.offset
-        dest_terrain = gamedata.map[self.location[0] + offset[0]][self.location[1] + offset[1]].get('terrain_type')
-        if dest_terrain.terrain_type == 'frozen_wastes':
+        dest_terrain = gamedata.world[self.location[0] + offset[0]][self.location[1] + offset[1]].get('terrain_type')
+        if dest_terrain.terrain_type == lom_data.FROZEN_WASTES:
             # Actor can't move into Frozen Wastes, even if cheating.
             return
         # Can't move at night, even if cheating.
-        if self.clock >= gamedata.nightfall:
+        if self.time >= gamedata.nightfall:
             return
         # Enough time left in the day to move?
         # Travelling on foot doubles the terrain move cost.
@@ -143,12 +144,12 @@ class Actor:
             # If we're cheating, we can move as far as we want with no energy cost.
             self.location = (self.location[0] + offset[0], self.location[1] + offset[1])
         else:
-            if self.clock + move_cost <= gamedata.nightfall:
+            if self.time + move_cost <= gamedata.nightfall:
                 # Enough energy left to move?
                 if self.energy >= dest_terrain.energy_cost:
                     # Set new location
                     self.location = (self.location[0] + offset[0], self.location[1] + offset[1])
-                    self.clock += move_cost
+                    self.time += move_cost
                     # Subtract energy cost
                     self.energy -= dest_terrain.energy_cost
                 else:
@@ -156,31 +157,31 @@ class Actor:
             else:
                 print('Not enough hours left.')
         #print('Moved to {0}'.format(self.location))
-        #print('Time: {0}'.format(self.clock))
+        #print('Time: {0}'.format(self.time))
 
-    def render_perspective(self, map, screen):
+    def render_perspective(self, world, screen):
         # Take the Actor's position and heading, and build the list of terrain pieces to render.
         rows_count = len(self.heading.view_offsets)
         y = 50 # Top of the grid.
         #print('Facing: {0}'.format(self.heading.name))
         #print('Current coords: {0}'.format(self.location))
-        current_location = map[self.location[0]][self.location[1]]
+        current_location = world[self.location[0]][self.location[1]]
         #print(current_location)
         for row in self.heading.view_offsets:
             x = 0
             for offset in row:
                 offset_grid = (self.location[0] + offset[0], self.location[1] + offset[1])
-                # Off the edge of the map? Terrain == Frozen Wastes
+                # Off the edge of the world? Terrain == Frozen Wastes
                 #print('Facing coords: {0}'.format(offset_grid))
                 if offset_grid[0] < 0 or offset_grid[0] > 62 or offset_grid[1] < 0 or offset_grid[1] > 66:
-                    terrain = wastes
+                    terrain = lom_data.FROZEN_WASTES
                 else:
-                    offset_location = map[offset_grid[0]][offset_grid[1]]
+                    offset_location = world[offset_grid[0]][offset_grid[1]]
                     #print(offset_location)
-                    terrain = eval(offset_location.get('terrain_type'))
+                    terrain = offset_location.get('terrain_type')
                     #print(terrain.terrain_type)
                 if terrain.image:
-                    terrain_img = pygame.image.load(terrain.image).convert_alpha() # Returns the image as a surface.
+                    terrain_img = pygame.image.load(terrain.image).convert_alpha()
                     #terrain_img = pygame.transform.scale(terrain_img,(20,20))
                     terrain_img = aspect_scale(terrain_img, (100,60))
                     screen.blit(terrain_img, (x, y))
@@ -193,7 +194,7 @@ class GameData:
     '''
     This class stores everything about a game in progress. 
     '''
-    map = None # A list of lists, each containing a number of dictionaries (one for each map tile).
+    world = None # A list of lists, each containing a number of dictionaries (one for each node).
     actor = None # Currently-selected actors
     actors = [] # A list of all player-controllable actors.
     npcs = [] # A list of NPC actors.

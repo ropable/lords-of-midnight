@@ -8,4 +8,7 @@
 <pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
 <path>C:\Python27\Lib\site-packages</path>
 </pydev_pathproperty>
+<pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
+<path>/Lords of Midnight</path>
+</pydev_pathproperty>
 </pydev_project>
