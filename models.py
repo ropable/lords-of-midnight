@@ -158,43 +158,40 @@ class Actor:
         #print('Time: {0}'.format(self.time))
 
     def render_perspective(self, world, screen):
+        offset = self.heading.offset
         for row in self.heading.view_offsets:
             location = world[self.location[0] + row[1][0]][self.location[1] + row[1][1]]
             terrain = location.get('terrain_type')
-            print(terrain.terrain_type)
-            '''
+            # view_offsets = (draw coords, offset, scale]
+            #print(terrain.terrain_type)
             if terrain.image:
                 terrain_img = pygame.image.load(terrain.image).convert_alpha()
                 x = i[0][0] - (terrain_img.get_width()/2)
                 y = i[0][1] - terrain_img.get_height()
                 screen.blit(terrain_img, (x,y))
-            '''
-        '''
-        for row in self.heading.view_offsets:
-            x = 0
-            for offset in row:
-                offset_grid = (self.location[0] + offset[0], self.location[1] + offset[1])
-                # Off the edge of the world? Terrain == Frozen Wastes
-                #print('Facing coords: {0}'.format(offset_grid))
-                if offset_grid[0] < 0 or offset_grid[0] > 62 or offset_grid[1] < 0 or offset_grid[1] > 66:
-                    terrain = lom_data.FROZEN_WASTES
-                else:
-                    offset_location = world[offset_grid[0]][offset_grid[1]]
-                    #print(offset_location)
-                    terrain = offset_location.get('terrain_type')
-                    #print(terrain.terrain_type)
-                if terrain.image:
-                    terrain_img = pygame.image.load(terrain.image).convert_alpha()
-                    #terrain_img = pygame.transform.scale(terrain_img,(20,20))
-                    terrain_img = aspect_scale(terrain_img, (100,60))
-                    screen.blit(terrain_img, (x, y))
-                else: # Plains
-                    pass
-                x += 100
-            y += 60
-            '''
+			for row in self.heading.view_offsets:
+				x = 0
+				for offset in row:
+					offset_grid = (self.location[0] + offset[0], self.location[1] + offset[1])
+					# Off the edge of the world? Terrain == Frozen Wastes
+					#print('Facing coords: {0}'.format(offset_grid))
+					if offset_grid[0] < 0 or offset_grid[0] > 62 or offset_grid[1] < 0 or offset_grid[1] > 66:
+						terrain = lom_data.FROZEN_WASTES
+					else:
+						offset_location = world[offset_grid[0]][offset_grid[1]]
+						#print(offset_location)
+						terrain = offset_location.get('terrain_type')
+						#print(terrain.terrain_type)
+					if terrain.image:
+						terrain_img = pygame.image.load(terrain.image).convert_alpha()
+						#terrain_img = pygame.transform.scale(terrain_img,(20,20))
+						terrain_img = aspect_scale(terrain_img, (100,60))
+						screen.blit(terrain_img, (x, y))
+					else: # Plains
+						pass
+					x += 100
+				y += 60
         # Check the facing direction for monsters, wild horses, armies, or other lords.
-        offset = self.heading.offset
         facing_coord = (self.location[0] + offset[0], self.location[1] + offset[1])
         facing_world_grid = world[facing_coord[0]][facing_coord[1]]
         if facing_world_grid.get('monster'):

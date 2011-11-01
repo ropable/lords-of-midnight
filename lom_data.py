@@ -45,74 +45,65 @@ CAVERN = Terrain('cavern', os.path.join(IMG_PATH, 'terrain_cavern.png'))
 # A note about offsets: due to how the world data is stored (rows of columns),
 # these offsets are NOT X,Y!
 # Rather the opposite: (a,-b) means to move one row down (-Y) and one column left (-X). 
-NORTH = Heading(name='north',
-    cardinal=True,
-    bearing=0,
-    offset=(-1,0), 
+NORTH = Heading(name='north', cardinal=True, bearing=0, offset=(-1,0), 
     view_offsets=[
         #(draw coords, offset, scale]
-        [(512, 469), (-6, 0), 0.1], # Furthest
+        [(512, 469), (-6, 0), 0.1],
         [(512, 472), (-5, 0), 0.2],
         [(512, 477), (-4, 0), 0.3],
         [(512, 486), (-3, 0), 0.4],
         [(512, 507), (-2, 0), 0.6],
-        [(512, 568), (-1, 0), 1.0]  # Closest
+        [(512, 568), (-1, 0), 1.0]
     ])
-NORTHEAST = Heading(name='northeast',
-    cardinal=False,
-    bearing=45,
-    offset=(-1,1),
+NORTHEAST = Heading(name='northeast', cardinal=False, bearing=45, offset=(-1,1),
     view_offsets=[
         [(512, 473), (-4, 4), 0.2],
         [(512, 479), (-3, 3), 0.3],
         [(512, 493), (-2, 2), 0.5],
         [(512, 541), (-1, 1), 0.9]
     ])
-EAST = Heading('east', True, 90, (0,1),
+EAST = Heading(name='east', cardinal=True, bearing=90, offset=(0,1),
     view_offsets=[
-        #(draw coords, offset, scale]
-        [(512, 469), (0, 6), 0.1], # Furthest
+        [(512, 469), (0, 6), 0.1],
         [(512, 472), (0, 5), 0.2],
         [(512, 477), (0, 4), 0.3],
         [(512, 486), (0, 3), 0.4],
         [(512, 507), (0, 2), 0.6],
-        [(512, 568), (0, 1), 1.0]  # Closest
+        [(512, 568), (0, 1), 1.0]
     ])
-SOUTHEAST = Heading('southeast', False, 135, (1,1),
+SOUTHEAST = Heading(name='southeast', cardinal=False, bearing=135, offset=(1,1),
     view_offsets=[
         [(512, 473), (4, 4), 0.2],
         [(512, 479), (3, 3), 0.3],
         [(512, 493), (2, 2), 0.5],
         [(512, 541), (1, 1), 0.9]
     ])
-SOUTH = Heading('south', True, 180, (1,0),
+SOUTH = Heading(name='south', cardinal=True, bearing=180, offset=(1,0),
     view_offsets=[
-        #(draw coords, offset, scale]
-        [(512, 469), (6, 0), 0.1], # Furthest
+        [(512, 469), (6, 0), 0.1],
         [(512, 472), (5, 0), 0.2],
         [(512, 477), (4, 0), 0.3],
         [(512, 486), (3, 0), 0.4],
         [(512, 507), (2, 0), 0.6],
-        [(512, 568), (1, 0), 1.0]  # Closest
+        [(512, 568), (1, 0), 1.0]
     ])
-SOUTHWEST = Heading('southwest', False, 225, (1,-1),
+SOUTHWEST = Heading(name='southwest', cardinal=False, bearing=225, offset=(1,-1),
     view_offsets=[
         [(512, 473), (4, -4), 0.2],
         [(512, 479), (3, -3), 0.3],
         [(512, 493), (2, -2), 0.5],
         [(512, 541), (1, -1), 0.9]
     ]) 
-WEST = Heading('west', True, 270, (0,-1),
+WEST = Heading(name='west', cardinal=True, bearing=270, offset=(0,-1),
     view_offsets=[
-        #(draw coords, offset, scale]
-        [(512, 469), (0, -6), 0.1], # Furthest
+        [(512, 469), (0, -6), 0.1],
         [(512, 472), (0, -5), 0.2],
         [(512, 477), (0, -4), 0.3],
         [(512, 486), (0, -3), 0.4],
         [(512, 507), (0, -2), 0.6],
-        [(512, 568), (0, -1), 1.0]  # Closest
+        [(512, 568), (0, -1), 1.0]
     ])
-NORTHWEST = Heading('northwest', False, 315, (-1,-1),
+NORTHWEST = Heading(name='northwest', cardinal=False, bearing=315, offset=(-1,-1),
     view_offsets=[
         [(512, 473), (-4, -4), 0.2],
         [(512, 479), (-3, -3), 0.3],
@@ -121,23 +112,16 @@ NORTHWEST = Heading('northwest', False, 315, (-1,-1),
     ])
 
 # Define objects
+MOONRING = Object(name='moonring')
+DRAGONSLAYER = Object(name='dragonslayer')
+WOLFSLAYER = Object(name='wolfslayer')
 
 # Define monsters
-WOLVES = Monster(name = 'wolves',
-    hostile = True,
-    image = os.path.join(IMG_PATH, 'wolf.png'))
-DRAGONS = Monster(name = 'dragons',
-    hostile = True,
-    image = os.path.join(IMG_PATH, 'dragon.png'))
-ICE_TROLLS = Monster(name = 'ice_trolls',
-    hostile = True,
-    image = os.path.join(IMG_PATH, 'ice_troll.png'))
-SKULKRIN = Monster(name = 'skulkrin',
-    hostile = True,
-    image = os.path.join(IMG_PATH, 'skulkrin.png'))
-WILD_HORSES = Monster(name='wild horses',
-    hostile=False,
-    image = os.path.join(IMG_PATH, 'horse.png'))
+WOLVES = Monster(name='wolves', hostile=True, image=os.path.join(IMG_PATH, 'wolf.png'))
+DRAGONS = Monster(name='dragons', hostile=True, image=os.path.join(IMG_PATH, 'dragon.png'))
+ICE_TROLLS = Monster(name='ice_trolls', hostile=True, image=os.path.join(IMG_PATH, 'ice_troll.png'))
+SKULKRIN = Monster(name='skulkrin', hostile=True, image=os.path.join(IMG_PATH, 'skulkrin.png'))
+WILD_HORSES = Monster(name='wild horses', hostile=False, image=os.path.join(IMG_PATH, 'horse.png'))
 
 class DefaultGameData(GameData):
     '''A class to define all the additional data for a "default" game.
