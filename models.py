@@ -1,8 +1,6 @@
 #!/usr/bin/python
 from __future__ import division, print_function, unicode_literals
 
-import os
-import json
 import pygame
 
 import lom_data
@@ -160,31 +158,17 @@ class Actor:
         #print('Time: {0}'.format(self.time))
 
     def render_perspective(self, world, screen):
-        # Take the Actor's position and heading, and build the list of terrain pieces to render.
-        rows_count = len(self.heading.view_offsets)
-        y = 50 # Top of the grid.
-        #print('Facing: {0}'.format(self.heading.name))
-        #print('Current coords: {0}'.format(self.location))
-        current_location = world[self.location[0]][self.location[1]]
-        #print(current_location)
-        grid_coords = []
-        offset = self.heading.offset            
-        if self.heading.cardinal:
-            draw_coords = [(512, 469), (512, 472), (512, 477), (512, 486), (512, 507), (512, 568)]
-            grid_coords.append( (self.location[0] + (offset[0]*6), self.location[1] + (offset[1]*6)) )
-            grid_coords.append( (self.location[0] + (offset[0]*5), self.location[1] + (offset[1]*5)) )
-            grid_coords.append( (self.location[0] + (offset[0]*4), self.location[1] + (offset[1]*4)) )
-            grid_coords.append( (self.location[0] + (offset[0]*3), self.location[1] + (offset[1]*3)) )
-            grid_coords.append( (self.location[0] + (offset[0]*2), self.location[1] + (offset[1]*2)) )
-            grid_coords.append( (self.location[0] + (offset[0]), self.location[1] + (offset[1])) )
-        else:
-            draw_coords = [(512, 473), (512, 479), (512, 493), (512, 541)]
-            grid_coords.append( (self.location[0] + (offset[0]*4), self.location[1] + (offset[1]*4)) )
-            grid_coords.append( (self.location[0] + (offset[0]*3), self.location[1] + (offset[1]*3)) )
-            grid_coords.append( (self.location[0] + (offset[0]*2), self.location[1] + (offset[1]*2)) )
-            grid_coords.append( (self.location[0] + (offset[0]), self.location[1] + (offset[1])) )
-        for i in grid_coords:
-            pass
+        for row in self.heading.view_offsets:
+            location = world[self.location[0] + row[1][0]][self.location[1] + row[1][1]]
+            terrain = location.get('terrain_type')
+            print(terrain.terrain_type)
+            '''
+            if terrain.image:
+                terrain_img = pygame.image.load(terrain.image).convert_alpha()
+                x = i[0][0] - (terrain_img.get_width()/2)
+                y = i[0][1] - terrain_img.get_height()
+                screen.blit(terrain_img, (x,y))
+            '''
         '''
         for row in self.heading.view_offsets:
             x = 0

@@ -128,8 +128,4 @@ def draw_grids(cardinal=True, grids=False, screen=None):
         getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(1408,568)),
         getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(640,568))                        
         ]
-    if cardinal:
-        print(cardinal_intersects)
-    else:
-        print(intercardinal_intersects)
     
