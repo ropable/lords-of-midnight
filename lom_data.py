@@ -47,13 +47,41 @@ CAVERN = Terrain('cavern', os.path.join(IMG_PATH, 'terrain_cavern.png'))
 # Rather the opposite: (a,-b) means to move one row down (-Y) and one column left (-X). 
 NORTH = Heading(name='north', cardinal=True, bearing=0, offset=(-1,0), 
     view_offsets=[
+        # A list of lists; precalculated screen draw coords (x,y), location offsets and image scale.
+        # This is the order in which terrain pieces are drawn to the screen (furtherest first). 
         #(draw coords, offset, scale]
-        [(512, 469), (-6, 0), 0.1],
-        [(512, 472), (-5, 0), 0.2],
-        [(512, 477), (-4, 0), 0.3],
-        [(512, 486), (-3, 0), 0.4],
-        [(512, 507), (-2, 0), 0.6],
-        [(512, 568), (-1, 0), 1.0]
+        # First drawing curve.
+        [(402, 469), (-6, -1), 0.1], # Left arc
+        [(324, 471), (-6, -2), 0.1],
+        [(246, 474), (-5, -3), 0.1],
+        [(170, 472), (-5, -4), 0.1],
+        [(89, 470), (-4, -5), 0.1],
+        [(28, 472), (-3, -5), 0.1],
+        [(621, 469), (-6, 1), 0.1], # Right arc
+        [(699, 471), (-6, 2), 0.1],
+        [(777, 474), (-5, 3), 0.1],
+        [(853, 472), (-5, 4), 0.1],
+        [(934, 470), (-4, 5), 0.1],
+        [(995, 472), (-3, 5), 0.1],
+        [(512, 470), (-6, 0), 0.1], # Centre
+        #
+        #[(512, 470), (-5, 0), 0.12],
+        
+        #[(188, 476), (-4, -3), 0.08],
+        #[(128, 473), (-4, -4), 0.08],
+        #[(74, 474), (-3, -4), 0.08],
+        
+        #[(835, 476), (-4, 3), 0.08],
+        #[(896, 473), (-4, 4), 0.08],
+        #[(949, 474), (-3, 4), 0.08],
+        #
+        #[(128, 479), (-3, -3),0.2],
+        #[(44, 483), (-2, -3), 0.2],
+        
+        #[(896, 479), (-3, 3),0.2],
+        #[(979, 483), (-2, 3),0.2],
+        #
+        
     ])
 NORTHEAST = Heading(name='northeast', cardinal=False, bearing=45, offset=(-1,1),
     view_offsets=[
@@ -128,14 +156,16 @@ class DefaultGameData(GameData):
     You could mod the game by altering or subclassing this.
     '''
     # Load the world from the external file into a dictionary.
-    world = json.loads(open('data/world.json','r').readline())
+    #world = json.loads(open('data/world.json','r').readline())
+    world = json.loads(open('data/test_world.json','r').readline())
     # For each grid cell, replace the terrain_type with the correct terrain class.
     for row in world:
         for grid in row:
             grid['terrain_type'] = eval(grid['terrain_type'].upper())
     
     # Define initial player-controlled actors.
-    luxor = Actor(location = (41,13),
+    #luxor = Actor(location = (41,13),
+    luxor = Actor(location = (10,10),
         name = 'Luxor',
         title = 'the Moonprince',
         #image
@@ -143,7 +173,8 @@ class DefaultGameData(GameData):
         mounted = True,
         heraldry = os.path.join(IMG_PATH, 'shield_luxor.png'),
         race = FREE)
-    morkin = Actor(location = (41,13),
+    #morkin = Actor(location = (41,13),
+    morkin = Actor(location = (10,10),
         name = 'Morkin',
         title = None,
         #image
@@ -152,7 +183,8 @@ class DefaultGameData(GameData):
         icefear = False,
         heraldry = os.path.join(IMG_PATH, 'shield_morkin.png'),
         race = HALF_FEY)
-    corleth = Actor(location = (41,13),
+    #corleth = Actor(location = (41,13),
+    corleth = Actor(location = (10,10),
         name = 'Corleth',
         title = 'the Fey',
         #image
@@ -160,7 +192,8 @@ class DefaultGameData(GameData):
         mounted = True,
         heraldry = os.path.join(IMG_PATH, 'shield_corleth.png'),
         race = FEY)
-    rorthron = Actor(location = (41,13),
+    #rorthron = Actor(location = (41,13),
+    rorthron = Actor(location = (10,10),
         name = 'Rorthron',
         title = 'the Wise',
         #image

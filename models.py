@@ -123,7 +123,8 @@ class Actor:
         #print('Started at {0}'.format(self.location))
         offset = self.heading.offset
         dest_terrain = gamedata.world[self.location[0] + offset[0]][self.location[1] + offset[1]].get('terrain_type')
-        if dest_terrain.terrain_type == lom_data.FROZEN_WASTES:
+        #print(dest_terrain.terrain_type)
+        if dest_terrain == lom_data.FROZEN_WASTES:
             # Actor can't move into Frozen Wastes, even if cheating.
             return
         # Can't move at night, even if cheating.
@@ -159,43 +160,31 @@ class Actor:
 
     def render_perspective(self, world, screen):
         offset = self.heading.offset
-        for row in self.heading.view_offsets:
-            location = world[self.location[0] + row[1][0]][self.location[1] + row[1][1]]
-            terrain = location.get('terrain_type')
-            # view_offsets = (draw coords, offset, scale]
+        for node in self.heading.view_offsets:
+            location = world[self.location[0] + node[1][0]][self.location[1] + node[1][1]]
+            # If we're off the edge of the map, terrain == FROZEN_WASTES
+            if self.location[0] + node[1][0] < 0 or self.location[0] + node[1][0] > 62:
+                terrain = lom_data.FROZEN_WASTES
+            elif self.location[1] + node[1][1] < 0 or self.location[1] + node[1][1] > 65:
+                terrain = lom_data.FROZEN_WASTES
+            else:
+                terrain = location.get('terrain_type')
             #print(terrain.terrain_type)
+            # TODO: if terrain == PLAINS and there's an army present, draw it.
             if terrain.image:
                 terrain_img = pygame.image.load(terrain.image).convert_alpha()
-                x = i[0][0] - (terrain_img.get_width()/2)
-                y = i[0][1] - terrain_img.get_height()
+                # Scale the image
+                img_x = terrain_img.get_width() * node[2]
+                img_y = terrain_img.get_height() * node[2]
+                terrain_img = aspect_scale(terrain_img, (img_x,img_y))
+                x = node[0][0] - (terrain_img.get_width()/2)
+                y = node[0][1] - terrain_img.get_height()
                 screen.blit(terrain_img, (x,y))
-			for row in self.heading.view_offsets:
-				x = 0
-				for offset in row:
-					offset_grid = (self.location[0] + offset[0], self.location[1] + offset[1])
-					# Off the edge of the world? Terrain == Frozen Wastes
-					#print('Facing coords: {0}'.format(offset_grid))
-					if offset_grid[0] < 0 or offset_grid[0] > 62 or offset_grid[1] < 0 or offset_grid[1] > 66:
-						terrain = lom_data.FROZEN_WASTES
-					else:
-						offset_location = world[offset_grid[0]][offset_grid[1]]
-						#print(offset_location)
-						terrain = offset_location.get('terrain_type')
-						#print(terrain.terrain_type)
-					if terrain.image:
-						terrain_img = pygame.image.load(terrain.image).convert_alpha()
-						#terrain_img = pygame.transform.scale(terrain_img,(20,20))
-						terrain_img = aspect_scale(terrain_img, (100,60))
-						screen.blit(terrain_img, (x, y))
-					else: # Plains
-						pass
-					x += 100
-				y += 60
-        # Check the facing direction for monsters, wild horses, armies, or other lords.
+		# Check the facing direction for monsters, wild horses, armies, or other lords.
         facing_coord = (self.location[0] + offset[0], self.location[1] + offset[1])
-        facing_world_grid = world[facing_coord[0]][facing_coord[1]]
-        if facing_world_grid.get('monster'):
-            monster = eval('lom_data.' + facing_world_grid.get('monster').upper())
+        facing_location = world[facing_coord[0]][facing_coord[1]]
+        if facing_location.get('monster'):
+            monster = eval('lom_data.' + facing_location.get('monster').upper())
             monster_img = pygame.image.load(monster.image).convert_alpha()
             blit_y = (lom_data.SCREENSIZE[1] - monster_img.get_height())
             screen.blit(monster_img, (500,blit_y))

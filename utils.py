@@ -98,7 +98,7 @@ def draw_grids(cardinal=True, grids=False, screen=None):
     vp3 = (896, 460)
     # Don't use these anymore, but keep for reference.
     if cardinal:
-        sp1 = [-4608,-3072,-1792,-768,0,512,1024,1792,2816,4096] # Midpoint: 512
+        sp1 = [-4608,-3072,-1792,-768,0,512,1024,1792,2816,4096,5632] # Midpoint: 512
         sp2 = [-768,-256,128,512,1024,1792,2816,4096,5632] # Midpoint: 128
         sp3 = [-3072,-1792,-768,0,512,896,1280,1792] #Midpoint: 896
     else:
@@ -110,22 +110,23 @@ def draw_grids(cardinal=True, grids=False, screen=None):
             pygame.draw.line(screen, colours.aqua, (i, 568), vp1, 1)            
         for i in sp2:
             pygame.draw.line(screen, colours.red, (i, 568), vp2, 1)
-        #for i in sp3:
-        #    pygame.draw.line(screen, colours.green, (i, 568), vp3, 1)
+        for i in sp3:
+            pygame.draw.line(screen, colours.green, (i, 568), vp3, 1)
         #pygame.draw.line(screen, colours.green, (-4992, 568), vp1, 1)
         #pygame.draw.line(screen, colours.green, vp2, (896,568), 1)
-    cardinal_intersects = [
-        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(5632,568)),
-        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(4096,568)),
-        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(2816,568)),
-        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(1792,568)),
-        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(1024,568)),
-        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(512,568))
+    if cardinal:
+        intersects = [
+            getIntersectPoint(p1=(512,462), p2=(5632,568), p3=(896,460), p4=(1792,568)),
+            #getIntersectPoint(p1=(512,462), p2=(1024,568), p3=(896,460), p4=(-3072,568)),
         ]
-    intercardinal_intersects = [
-        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(3712,568)),
-        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(2432,568)),
-        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(1408,568)),
-        getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(640,568))                        
-        ]
-    
+    else:
+        intersects = [
+            getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(3712,568)),
+            getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(2432,568)),
+            getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(1408,568)),
+            getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(640,568))                        
+            ]
+    print(intersects)
+
+if __name__ == '__main__':
+    draw_grids(cardinal=True)

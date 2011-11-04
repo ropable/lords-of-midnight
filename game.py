@@ -49,7 +49,7 @@ class GameScreen(engine.State):
         # Draw their heraldry.
         shield = pygame.image.load(gamedata.actor.heraldry).convert_alpha()
         screen.blit(shield, (920,6))
-        # Draw the actor's panoramic view.
+        # Draw the actor's perspective.
         draw_grids(cardinal=gamedata.actor.heading.cardinal, grids=True, screen=screen)
         gamedata.actor.render_perspective(gamedata.world, screen)
         pygame.display.update()
