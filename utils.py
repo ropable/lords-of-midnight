@@ -116,7 +116,7 @@ def draw_grids(cardinal=True, grids=False, screen=None):
         #pygame.draw.line(screen, colours.green, vp2, (896,568), 1)
     if cardinal:
         intersects = [
-            getIntersectPoint(p1=(512,462), p2=(5632,568), p3=(896,460), p4=(1792,568)),
+            getIntersectPoint(p1=(512,462), p2=(-3072,568), p3=(128,460), p4=(4096,568)),
             #getIntersectPoint(p1=(512,462), p2=(1024,568), p3=(896,460), p4=(-3072,568)),
         ]
     else:
