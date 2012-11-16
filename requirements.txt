@@ -1,3 +1,2 @@
-Pygame
-easypg
-pgu
+Pygame==1.9.1
+pgu==0.18

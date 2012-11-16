@@ -1,18 +1,14 @@
 #!/usr/bin/python
 from __future__ import division, print_function, unicode_literals
-
+import os
+import pygame
+import lom_data
+from pygame.locals import *
+from pgu import engine, text
+from utils import draw_grids
 __author__ = 'Ashley Felton'
 __version__ = '0.0'
 __license__ = 'Public Domain'
-
-import os
-import pygame
-from pygame.locals import *
-from pgu import engine, text
-from easypg import colours
-
-import lom_data
-from utils import draw_grids
 
 pygame.font.init()
 os.environ["SDL_VIDEO_CENTERED"] = "1" ## Centre the graphics window.
@@ -21,13 +17,13 @@ screen = pygame.display.set_mode(lom_data.SCREENSIZE, 0, 32)
 
 class StartScreen(engine.State):
     def paint(self, screen):
-        screen.fill(colours.blue)
+        screen.fill(lom_data.BLUE)
         #message = 'Now explore the epic world of THE LORDS OF MIDNIGHT by Mike Singleton'
-        #text.writewrap(screen, font, pygame.Rect(10,10,100,100), colours.black, message)
-        text.write(screen, font, (10,10), colours.green, 'Now explore the epic world of', 0)
-        text.write(screen, font, (10,24), colours.yellow, 'THE LORDS OF MIDNIGHT', 0)
-        text.write(screen, font, (10,38), colours.purple, '       by', 0)
-        text.write(screen, font, (10,52), colours.aqua, ' Mike Singleton', 0)
+        #text.writewrap(screen, font, pygame.Rect(10,10,100,100), lom_data.black, message)
+        text.write(screen, font, (10,10), lom_data.GREEN, 'Now explore the epic world of', 0)
+        text.write(screen, font, (10,24), lom_data.YELLOW, 'THE LORDS OF MIDNIGHT', 0)
+        text.write(screen, font, (10,38), lom_data.PURPLE, '       by', 0)
+        text.write(screen, font, (10,52), lom_data.AQUA, ' Mike Singleton', 0)
         pygame.display.update()
     
     def event(self, event):
@@ -38,14 +34,14 @@ class StartScreen(engine.State):
         
 class GameScreen(engine.State):
     def paint(self, screen):
-        screen.fill(colours.blue)
+        screen.fill(lom_data.BLUE)
         land = pygame.surface.Surface((lom_data.SCREENSIZE[0], lom_data.SCREENSIZE[1]*0.39))
-        land.fill(colours.white)
+        land.fill(lom_data.WHITE)
         screen.blit(land, (0, lom_data.SCREENSIZE[1]*0.61))
         # Display the name of the current actor.
-        text.write(screen, font, (6,6), colours.yellow, gamedata.actor.name, 0)
+        text.write(screen, font, (6,6), lom_data.YELLOW, gamedata.actor.name, 0)
         # Describe what they are looking at.
-        text.write(screen, font, (6,20), colours.aqua, gamedata.actor.location_desc(gamedata.world), 0)
+        text.write(screen, font, (6,20), lom_data.AQUA, gamedata.actor.location_desc(gamedata.world), 0)
         # Draw their heraldry.
         shield = pygame.image.load(gamedata.actor.heraldry).convert_alpha()
         screen.blit(shield, (920,6))

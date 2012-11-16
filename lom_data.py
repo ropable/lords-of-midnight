@@ -1,19 +1,34 @@
 #!/usr/bin/python
 from __future__ import division, print_function, unicode_literals
-
 import os
 import json
 from sys import path
-
 from models import Heading, Terrain, Object, Monster, Race, Actor, GameData
 
+# Game constants
 PROJECT_PATH = path[0]
 ASSET_PATH = PROJECT_PATH + os.sep + 'assets'
 FONT_PATH = ASSET_PATH + os.sep + 'font'
 FONT_BENG = FONT_PATH + os.sep + 'benguiat_book_bt.ttf'
 IMG_PATH = ASSET_PATH + os.sep + 'img'
 SCREENSIZE = (1024, 768)
-
+# Colour tuples
+WHITE = (255, 255, 255)
+SILVER = (191, 191, 191)
+GREY = (128, 128, 128)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+MAROON = (128, 0, 0)
+YELLOW = (255, 255, 0)
+OLIVE = (128, 128, 0)
+LIME = (0, 255, 0)
+GREEN = (0, 128, 0)
+AQUA = (0, 255, 255)
+TEAL = (0, 128, 128)
+BLUE = (0, 0, 255)
+NAVY = (0, 0, 128)
+FUCHSIA = (255, 0, 255)
+PURPLE = (128, 0, 128)
 # Define races
 FREE = Race('free')
 FOUL = Race('foul')
@@ -22,8 +37,7 @@ HALF_FEY = Race('half_fey') # He's special: half-human, half-fey.
 TARG = Race('targ')
 WISE = Race('wise')
 SKULKRIN = Race('skulkrin')
-DRAGON = Race('')
-
+DRAGON = Race('dragon')
 # Define terrain types
 PLAINS = Terrain('plains')
 MOUNTAINS = Terrain('mountains', os.path.join(IMG_PATH, 'terrain_mountains.png'), 3, 64)
@@ -357,6 +371,7 @@ WILD_HORSES = Monster(name='wild horses', hostile=False, image=os.path.join(IMG_
 class DefaultGameData(GameData):
     '''A class to define all the additional data for a "default" game.
     You could mod the game by altering or subclassing this.
+	TODO: move this game config out into an external file (e.g. JSON).
     '''
     # Load the world from the external file into a dictionary.
     world = json.loads(open('data/world.json','r').readline())
