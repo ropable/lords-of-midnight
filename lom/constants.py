@@ -5,6 +5,7 @@ import json
 from sys import path
 from models import Heading, Terrain, Object, Monster, Race, Actor, GameData
 
+
 # Game constants
 PROJECT_PATH = path[0]
 ASSET_PATH = PROJECT_PATH + os.sep + 'assets'

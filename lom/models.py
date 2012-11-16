@@ -1,10 +1,9 @@
 #!/usr/bin/python
 from __future__ import division, print_function, unicode_literals
-
 import pygame
-
-import lom_data
+import constants
 from utils import aspect_scale
+
 
 class Heading:
     # This is a class for actor/army headings (facing direction).
@@ -46,7 +45,7 @@ class Race:
 class Actor:
     def __init__(self, *args, **kwargs):
         self.location = kwargs.get('location') # A two-tuple coordinate (NOT x,y coords) of current grid location.
-        self.heading = kwargs.get('heading') or lom_data.NORTH
+        self.heading = kwargs.get('heading') or constants.NORTH
         self.time = kwargs.get('time') or 8 # 8 AM is dawn.
         self.name = kwargs.get('name')
         self.title = kwargs.get('title')
@@ -63,9 +62,9 @@ class Actor:
 
     def rotate_cw(self):
         # Alters the Actor's bearing and heading by 45 degrees clockwise.
-        headings = {'0':lom_data.NORTH, '45':lom_data.NORTHEAST, '90':lom_data.EAST,
-                    '135':lom_data.SOUTHEAST, '180':lom_data.SOUTH, '225':lom_data.SOUTHWEST,
-                    '270':lom_data.WEST, '315':lom_data.NORTHWEST}
+        headings = {'0':constants.NORTH, '45':constants.NORTHEAST, '90':constants.EAST,
+                    '135':constants.SOUTHEAST, '180':constants.SOUTH, '225':constants.SOUTHWEST,
+                    '270':constants.WEST, '315':constants.NORTHWEST}
         bearing = self.heading.bearing
         if bearing + 45 == 360:
             bearing = 0
@@ -75,9 +74,9 @@ class Actor:
         
     def rotate_ccw(self):
         # Alters the Actor's bearing and heading by 45 degrees counterclockwise.
-        headings = {'0':lom_data.NORTH, '45':lom_data.NORTHEAST, '90':lom_data.EAST,
-                    '135':lom_data.SOUTHEAST, '180':lom_data.SOUTH, '225':lom_data.SOUTHWEST,
-                    '270':lom_data.WEST, '315':lom_data.NORTHWEST}
+        headings = {'0':constants.NORTH, '45':constants.NORTHEAST, '90':constants.EAST,
+                    '135':constants.SOUTHEAST, '180':constants.SOUTH, '225':constants.SOUTHWEST,
+                    '270':constants.WEST, '315':constants.NORTHWEST}
         bearing = self.heading.bearing
         if bearing - 45 < 0:
             bearing = 315
@@ -96,7 +95,7 @@ class Actor:
         facing_location = world[facing_grid[0]][facing_grid[1]]
         # Still facing plains? Look further ahead.
         # TODO: only look three squares ahead.
-        while facing_location.get('terrain_type') == lom_data.PLAINS:
+        while facing_location.get('terrain_type') == constants.PLAINS:
             facing_grid = (facing_grid[0] + offset[0], facing_grid[1] + offset[1])
             facing_location = world[facing_grid[0]][facing_grid[1]]
         return location_desc.format(current_location.get('name'), self.heading.name,
@@ -124,7 +123,7 @@ class Actor:
         offset = self.heading.offset
         dest_terrain = gamedata.world[self.location[0] + offset[0]][self.location[1] + offset[1]].get('terrain_type')
         #print(dest_terrain.terrain_type)
-        if dest_terrain == lom_data.FROZEN_WASTES:
+        if dest_terrain == constants.FROZEN_WASTES:
             # Actor can't move into Frozen Wastes, even if cheating.
             return
         # Can't move at night, even if cheating.
@@ -164,9 +163,9 @@ class Actor:
             location = world[self.location[0] + node[1][0]][self.location[1] + node[1][1]]
             # If we're off the edge of the map, terrain == FROZEN_WASTES
             if self.location[0] + node[1][0] < 0 or self.location[0] + node[1][0] > 62:
-                terrain = lom_data.FROZEN_WASTES
+                terrain = constants.FROZEN_WASTES
             elif self.location[1] + node[1][1] < 0 or self.location[1] + node[1][1] > 65:
-                terrain = lom_data.FROZEN_WASTES
+                terrain = constants.FROZEN_WASTES
             else:
                 terrain = location.get('terrain_type')
             #print(terrain.terrain_type)
@@ -184,9 +183,9 @@ class Actor:
         facing_coord = (self.location[0] + offset[0], self.location[1] + offset[1])
         facing_location = world[facing_coord[0]][facing_coord[1]]
         if facing_location.get('monster'):
-            monster = eval('lom_data.' + facing_location.get('monster').upper())
+            monster = eval('constants.' + facing_location.get('monster').upper())
             monster_img = pygame.image.load(monster.image).convert_alpha()
-            blit_y = (lom_data.SCREENSIZE[1] - monster_img.get_height())
+            blit_y = (constants.SCREENSIZE[1] - monster_img.get_height())
             screen.blit(monster_img, (500,blit_y))
 
 class GameData:
