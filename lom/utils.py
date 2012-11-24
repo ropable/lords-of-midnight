@@ -109,22 +109,23 @@ def draw_grids(cardinal=True, grids=False, screen=None):
             pygame.draw.line(screen, constants.AQUA, (i, 568), vp1, 1)            
         for i in sp2:
             pygame.draw.line(screen, constants.RED, (i, 568), vp2, 1)
-        #for i in sp3:
-        #    pygame.draw.line(screen, constants.GREEN, (i, 568), vp3, 1)
+        for i in sp3:
+            pygame.draw.line(screen, constants.GREEN, (i, 568), vp3, 1)
         #pygame.draw.line(screen, constants.GREEN, (-4992, 568), vp1, 1)
         #pygame.draw.line(screen, constants.GREEN, vp2, (896,568), 1)
     if cardinal:
         intersects = [
             getIntersectPoint(p1=(512,462), p2=(-3072,568), p3=(128,460), p4=(512,568)),
             getIntersectPoint(p1=(512,462), p2=(-1792,568), p3=(128,460), p4=(1024,568)),
-            
         ]
     else:
         intersects = [
-            getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(3712,568)),
-            getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(2432,568)),
-            getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(1408,568)),
-            getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,462), p4=(640,568))
+            getIntersectPoint(p1=(512,462), p2=(-4992,568), p3=(128,460), p4=(-256,568)),
+            getIntersectPoint(p1=(512,462), p2=(-4992,568), p3=(128,460), p4=(128,568)),
+            #getIntersectPoint(p1=(512,462), p2=(-4992,568), p3=(128,460), p4=(640,568)),
+            #getIntersectPoint(p1=(512,462), p2=(-3456,568), p3=(128,460), p4=(1408,568)),
+            #getIntersectPoint(p1=(512,462), p2=(-2176,568), p3=(128,460), p4=(2432,568)),
+            #getIntersectPoint(p1=(512,462), p2=(-384,568), p3=(128,460), p4=(3712,568))
         ]
     print(intersects)
 

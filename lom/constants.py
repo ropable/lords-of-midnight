@@ -3,7 +3,9 @@ from __future__ import division, print_function, unicode_literals
 import os
 import json
 from sys import path
+#from models import *
 from models import Heading, Terrain, Object, Monster, Race, Actor, GameData
+from utils import getIntersectPoint
 
 
 # Game constants
@@ -56,10 +58,19 @@ RUIN = Terrain('ruin', os.path.join(IMG_PATH, 'terrain_ruin.png'))
 LITH = Terrain('lith', os.path.join(IMG_PATH, 'terrain_lith.png'))
 CAVERN = Terrain('cavern', os.path.join(IMG_PATH, 'terrain_cavern.png'))
 
+CARDINAL_DRAW_COORDS = [
+	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(5632,568)),
+	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(4096,568)),
+	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(2816,568)),
+	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(1792,568)),
+	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(1024,568)),
+	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(512,568)),
+]
 # Define headings.
 # A note about offsets: due to how the world data is stored (rows of columns),
 # these offsets are NOT X,Y!
-# Rather the opposite: (a,-b) means to move one row down (-Y) and one column left (-X). 
+# Rather the opposite: (a,-b) means to move one row down (-Y) and one column left (-X).
+[(), ()]
 NORTH = Heading(name='north', cardinal=True, bearing=0, offset=(-1,0), 
     view_offsets=[
         # A list of lists; precalculated screen draw coords (x,y), location offsets and image scale.
@@ -128,14 +139,57 @@ NORTH = Heading(name='north', cardinal=True, bearing=0, offset=(-1,0),
         [(896, 541), (-1, 1), 0.72],
 		# Centre line
         [(512, 568), (-1, 0), 1]
-	]
-)
+	])
 NORTHEAST = Heading(name='northeast', cardinal=False, bearing=45, offset=(-1,1),
     view_offsets=[
-        [(512, 473), (-4, 4), 0.2],
-        [(512, 479), (-3, 3), 0.3],
-        [(512, 493), (-2, 2), 0.5],
-        [(512, 541), (-1, 1), 0.9]
+        [(480, 470), (-5, 4), 0.1], # L1
+		[(108, 469), (-6, -1), 0.1], # L7
+        [(544, 470), (-4, 5), 0.1], # R1
+		[(916, 469), (1, 6), 0.1], # R7
+        [(128, 469), (-6, 0), 0.125], # L6
+        [(896, 469), (0, 6), 0.125], # R6
+        [(179, 470), (-6, 1), 0.125], # L5
+        [(845, 470), (-1, 6), 0.125], # L6
+        [(266, 471), (-6, 2), 0.125], # L4
+        [(758, 471), (-2, 6), 0.125], # L4
+        [(92, 470), (-5, -1), 0.15], # L6
+        [(932, 470), (1, 5), 0.15], # L6
+        [(128, 472), (-5, 0), 0.15], # L5
+        [(896, 472), (0, 5), 0.15], # R5
+        [(196, 474), (-5, 1), 0.15], # L4
+        [(828, 474), (-1, 5), 0.15], # R4
+        [(306, 475), (-5, 2), 0.15], # L3
+        [(718, 475), (-2, 5), 0.15], # R3
+        [(415, 473), (-5, 3), 0.125], # L2
+        [(609, 473), (-3, 5), 0.125], # R2
+        [(512, 473), (-4, 4), 0.2], # Middle
+		[(79, 473), (-4, -1), 0.225], # L5
+        [(945, 473), (1, 4), 0.225], # R5
+        [(128, 477), (-4, 0), 0.25], # L4
+        [(896, 477), (0, 4), 0.25], # R4
+        [(224, 480), (-4, 1,), 0.275], # L3
+        [(800, 480), (-1, 4,), 0.275], # R3
+        [(362, 479), (-4, 2), 0.25], # L2
+        [(662, 479), (-2, 4), 0.25], # R2
+        [(462, 475), (-4, 3), 0.275], # L1
+        [(562, 475), (-3, 4), 0.275], # R1
+        [(512, 479), (-3, 3), 0.3], # middle
+		[(57, 479), (-3, -1), 0.325], # L4
+        [(967, 479), (1, 3), 0.325], # R4
+        [(128, 486), (-3, 0), 0.35], # L3
+        [(896, 486), (0, 3), 0.35], # R3
+        [(272, 490), (-3, 1), 0.375], # L2
+        [(752, 490), (-1, 3), 0.375], # R2
+        [(427, 485), (-3, 2), 0.375], # L1
+        [(597, 485), (-2, 3), 0.375], # R1
+        [(512, 493), (-2, 2), 0.45], # middle
+		[(128, 507), (-2, 0), 0.5], # L2
+        [(896, 507), (0, 2), 0.5], # R2
+        [(349, 506), (-2, 1), 0.6], # L1
+        [(675, 506), (-1, 2), 0.6], # R1
+        [(512, 541), (-1, 1), 0.8], # middle
+        [(128, 568), (-1, 0), 0.9], # L1
+        [(896, 568), (0, 1), 0.9], # R1
     ])
 EAST = Heading(name='east', cardinal=True, bearing=90, offset=(0,1),
     view_offsets=[
@@ -278,11 +332,55 @@ SOUTH = Heading(name='south', cardinal=True, bearing=180, offset=(1,0),
     ])
 SOUTHWEST = Heading(name='southwest', cardinal=False, bearing=225, offset=(1,-1),
     view_offsets=[
-        [(512, 473), (4, -4), 0.2],
-        [(512, 479), (3, -3), 0.3],
-        [(512, 493), (2, -2), 0.5],
-        [(512, 541), (1, -1), 0.9]
-    ]) 
+        [(480, 470), (5, -4), 0.1], # L1
+		[(108, 469), (6, 1), 0.1], # L7
+        [(544, 470), (4, -5), 0.1], # R1
+		[(916, 469), (-1, -6), 0.1], # R7
+        [(128, 469), (6, 0), 0.125], # L6
+        [(896, 469), (0, -6), 0.125], # R6
+        [(179, 470), (6, -1), 0.125], # L5
+        [(845, 470), (1, -6), 0.125], # L6
+        [(266, 471), (6, -2), 0.125], # L4
+        [(758, 471), (2, -6), 0.125], # L4
+        [(92, 470), (5, 1), 0.15], # L6
+        [(932, 470), (-1, -5), 0.15], # L6
+        [(128, 472), (5, 0), 0.15], # L5
+        [(896, 472), (0, -5), 0.15], # R5
+        [(196, 474), (5, -1), 0.15], # L4
+        [(828, 474), (1, -5), 0.15], # R4
+        [(306, 475), (5, -2), 0.15], # L3
+        [(718, 475), (2, -5), 0.15], # R3
+        [(415, 473), (5, -3), 0.125], # L2
+        [(609, 473), (3, -5), 0.125], # R2
+        [(512, 473), (4, -4), 0.2], # Middle
+		[(79, 473), (4, 1), 0.225], # L5
+        [(945, 473), (-1, -4), 0.225], # R5
+        [(128, 477), (4, 0), 0.25], # L4
+        [(896, 477), (0, -4), 0.25], # R4
+        [(224, 480), (4, -1), 0.275], # L3
+        [(800, 480), (1, -4), 0.275], # R3
+        [(362, 479), (4, -2), 0.25], # L2
+        [(662, 479), (2, -4), 0.25], # R2
+        [(462, 475), (4, -3), 0.275], # L1
+        [(562, 475), (3, -4), 0.275], # R1
+        [(512, 479), (3, -3), 0.3], # middle
+		[(57, 479), (3, 1), 0.325], # L4
+        [(967, 479), (-1, -3), 0.325], # R4
+        [(128, 486), (3, 0), 0.35], # L3
+        [(896, 486), (0, -3), 0.35], # R3
+        [(272, 490), (3, -1), 0.375], # L2
+        [(752, 490), (1, -3), 0.375], # R2
+        [(427, 485), (3, -2), 0.375], # L1
+        [(597, 485), (2, -3), 0.375], # R1
+        [(512, 493), (2, -2), 0.45], # middle
+		[(128, 507), (2, 0), 0.5], # L2
+        [(896, 507), (0, -2), 0.5], # R2
+        [(349, 506), (2, -1), 0.6], # L1
+        [(675, 506), (1, -2), 0.6], # R1
+        [(512, 541), (1, -1), 0.8], # middle
+        [(128, 568), (1, 0), 0.9], # L1
+        [(896, 568), (0, -1), 0.9], # R1
+    ])
 WEST = Heading(name='west', cardinal=True, bearing=270, offset=(0,-1),
     view_offsets=[
         [(512, 467), (0, -6), 0.1],
@@ -373,6 +471,8 @@ class DefaultGameData(GameData):
     '''A class to define all the additional data for a "default" game.
     You could mod the game by altering or subclassing this.
 	TODO: move this game config out into an external file (e.g. JSON).
+	Character stats reference: http://www.icemark.com/tower/charstats.htm
+	Doomdark's regiments: http://www.icemark.com/tower/regiments.htm
     '''
     # Load the world from the external file into a dictionary.
     world = json.loads(open('data/world.json','r').readline())
@@ -387,6 +487,7 @@ class DefaultGameData(GameData):
     #luxor = Actor(location = (10,10),
         name = 'Luxor',
         title = 'the Moonprince',
+        heading = NORTHEAST,
         #image
         #image_mounted
         mounted = True,

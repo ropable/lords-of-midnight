@@ -2,7 +2,7 @@
 from __future__ import division, print_function, unicode_literals
 import pygame
 import constants
-from utils import aspect_scale
+import utils
 
 
 class Heading:
@@ -115,7 +115,8 @@ class Actor:
         # Energy levels range between 0 and 128.
         # Utterly invigorated 128
         # Very invigorated
-        # 
+		# Somewhat invigorated
+        # Invigorated
         return 'message'
         
     def move(self, gamedata):
@@ -175,11 +176,11 @@ class Actor:
                 # Scale the image
                 img_x = terrain_img.get_width() * node[2]
                 img_y = terrain_img.get_height() * node[2]
-                terrain_img = aspect_scale(terrain_img, (img_x,img_y))
+                terrain_img = utils.aspect_scale(terrain_img, (img_x,img_y))
                 x = node[0][0] - (terrain_img.get_width()/2)
                 y = node[0][1] - terrain_img.get_height()
                 screen.blit(terrain_img, (x,y))
-		# Check the facing direction for monsters, wild horses, armies, or other lords.
+        # Check the facing direction for monsters, wild horses, armies, or other lords.
         facing_coord = (self.location[0] + offset[0], self.location[1] + offset[1])
         facing_location = world[facing_coord[0]][facing_coord[1]]
         if facing_location.get('monster'):
