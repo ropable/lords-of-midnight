@@ -58,14 +58,6 @@ RUIN = Terrain('ruin', os.path.join(IMG_PATH, 'terrain_ruin.png'))
 LITH = Terrain('lith', os.path.join(IMG_PATH, 'terrain_lith.png'))
 CAVERN = Terrain('cavern', os.path.join(IMG_PATH, 'terrain_cavern.png'))
 
-CARDINAL_DRAW_COORDS = [
-	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(5632,568)),
-	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(4096,568)),
-	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(2816,568)),
-	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(1792,568)),
-	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(1024,568)),
-	getIntersectPoint(p1=(512,462), p2=(512,568), p3=(128,460), p4=(512,568)),
-]
 # Define headings.
 # A note about offsets: due to how the world data is stored (rows of columns),
 # these offsets are NOT X,Y!
@@ -568,7 +560,6 @@ class DefaultGameData(GameData):
     for row in world:
         for grid in row:
             grid['terrain_type'] = eval(grid['terrain_type'].upper())
-    
     # Define initial player-controlled actors.
     luxor = Actor(location = (41,13),
     #luxor = Actor(location = (10,10),
@@ -580,8 +571,7 @@ class DefaultGameData(GameData):
         mounted = True,
         heraldry = os.path.join(IMG_PATH, 'shield_luxor.png'),
         race = FREE)
-    #morkin = Actor(location = (41,13),
-    morkin = Actor(location = (10,10),
+    morkin = Actor(location = (41,13),
         name = 'Morkin',
         title = None,
         #image
@@ -590,8 +580,7 @@ class DefaultGameData(GameData):
         icefear = False,
         heraldry = os.path.join(IMG_PATH, 'shield_morkin.png'),
         race = HALF_FEY)
-    #corleth = Actor(location = (41,13),
-    corleth = Actor(location = (10,10),
+    corleth = Actor(location = (41,13),
         name = 'Corleth',
         title = 'the Fey',
         #image
@@ -599,8 +588,7 @@ class DefaultGameData(GameData):
         mounted = True,
         heraldry = os.path.join(IMG_PATH, 'shield_corleth.png'),
         race = FEY)
-    #rorthron = Actor(location = (41,13),
-    rorthron = Actor(location = (10,10),
+    rorthron = Actor(location = (41,13),
         name = 'Rorthron',
         title = 'the Wise',
         #image

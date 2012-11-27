@@ -159,17 +159,18 @@ class Actor:
         #print('Time: {0}'.format(self.time))
 
     def render_perspective(self, world, screen):
+        world_rows = len(world)
+        world_cols = len(world[0])
         offset = self.heading.offset
         for node in self.heading.view_offsets:
-            location = world[self.location[0] + node[1][0]][self.location[1] + node[1][1]]
             # If we're off the edge of the map, terrain == FROZEN_WASTES
-            if self.location[0] + node[1][0] < 0 or self.location[0] + node[1][0] > 62:
+            if self.location[0] + node[1][0] < 0 or self.location[0] + node[1][0] >= world_rows:
                 terrain = constants.FROZEN_WASTES
-            elif self.location[1] + node[1][1] < 0 or self.location[1] + node[1][1] > 65:
+            elif self.location[1] + node[1][1] < 0 or self.location[1] + node[1][1] >= world_cols:
                 terrain = constants.FROZEN_WASTES
             else:
+                location = world[self.location[0] + node[1][0]][self.location[1] + node[1][1]]
                 terrain = location.get('terrain_type')
-            #print(terrain.terrain_type)
             # TODO: if terrain == PLAINS and there's an army present, draw it.
             if terrain.image:
                 terrain_img = pygame.image.load(terrain.image).convert_alpha()
